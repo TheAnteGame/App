@@ -19,3 +19,9 @@ Format: `- [area] What changed — why (if not obvious)`
 - [app] Brand token module (`src/lib/brand.ts`) — name/logo/colors swappable per spec.
 - [app] Dark theme + gold accent design tokens in Tailwind/globals.
 - [auth] Clerk wired behind env placeholders (email OTP only); app boots without keys until Robert's Clerk account exists.
+- [fonts] Switched next/font/google → self-hosted `geist` package (sandboxed builds can't reach Google Fonts; also faster/deterministic on Vercel).
+- [ingest] Lock computation anchors the week's Thursday on the LATEST kickoff (walking back), not the earliest — fixes weekend-only slates; 5 unit tests cover normal, Wednesday-opener, Thanksgiving, weekend-only, and empty cases.
+- [jobs] sync-schedule route accepts `?secret=` in addition to the cron Bearer header so the admin can trigger it from a browser.
+- [tooling] `scripts/push-via-api.mjs` — pushes the git tree via GitHub's Git Data API for sandboxed sessions that can't `git push` directly.
+- [db] `supabase/ALL-IN-ONE.sql` — both migrations concatenated for pasting into the Supabase SQL Editor (sandbox can't reach the DB directly).
+- [repo] First push to `TheAnteGame/App@main` (45 files); Vercel auto-deploy wired to the repo.
