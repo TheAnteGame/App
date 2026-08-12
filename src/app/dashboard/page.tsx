@@ -117,6 +117,11 @@ export default async function Dashboard() {
             </p>
           </div>
           <nav className="flex flex-col items-end gap-1 text-xs text-ink-muted">
+            {user.role === "admin" && (
+              <Link href="/admin" className="text-gold hover:text-gold-bright">
+                Commissioner
+              </Link>
+            )}
             <Link href="/how-to-play" className="hover:text-ink">How to play</Link>
             <SignOutButton>
               <button className="hover:text-ink">Log out</button>
