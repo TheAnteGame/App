@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
-// Self-hosted Geist (no build-time font fetch — required for sandboxed builds)
+// Self-hosted fonts (no build-time font fetch — required for sandboxed builds)
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+// Kanit: display font for headlines/CTAs — closest Google font to the logo's
+// aggressive italic cut. Body text stays Geist.
+import "@fontsource/kanit/600-italic.css";
+import "@fontsource/kanit/700-italic.css";
+import "@fontsource/kanit/800-italic.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { BRAND } from "@/lib/brand";
 import "./globals.css";

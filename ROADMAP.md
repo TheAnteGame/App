@@ -8,15 +8,18 @@
 
 ## Current status
 
-- **Phase:** 0 — Foundations (in progress; code done, Robert-side steps remain)
+- **Phase:** 0 — Foundations (DONE except interactive login UI, which is Phase 1 work anyway)
 - **Session count:** 1
-- **Repo:** `TheAnteGame/App` (main) — first push complete, 45 files
-- **Deployed URL:** Vercel auto-deploy triggered by first push (confirm in dashboard)
-- **Blockers (all on Robert, instructions delivered in chat):**
-  1. Paste `supabase/ALL-IN-ONE.sql` into Supabase SQL Editor (applies schema + seeds)
-  2. Paste env vars into Vercel (list delivered in chat, incl. generated CRON_SECRET)
-  3. Visit the sync-schedule trigger URL to ingest the 2026 schedule
-  4. Clerk keys (account being created) — unblocks login (last Phase 0 exit criterion)
+- **Repo (SOURCE OF TRUTH):** `rztoler/the-ante` (private) — Vercel-created clone of `TheAnteGame/App`; every push to `main` auto-deploys. **`TheAnteGame/App` is now STALE** — do not push there.
+- **Vercel:** account `roberttoler-8396` ("Toler" hobby team), project **`the-ante`**, production domain **https://the-ante-inky.vercel.app** (deployment protection disabled). The old empty `ante` project on the same account can be deleted.
+- **Database:** schema + seeds applied (Robert, via SQL Editor); **272 games / 18 weeks ingested from ESPN, zero errors**; all env vars (7) set by Robert; Clerk keys live.
+- **Blockers / Robert to-dos:**
+  1. **GitHub PAT for `rztoler`** — Phase 1 code is committed locally in the cloud workspace but CANNOT DEPLOY without it (fine-grained, repo `rztoler/the-ante`, contents read/write).
+  2. After Robert's first real login on the live site, make him commissioner — run in Supabase SQL Editor:
+     `update users set role = 'admin', status = 'active' where email = 'robert.toler@growthpropulsion.com';`
+  3. **Vercel Hobby cron limit:** crons run at most daily. Daily backstops are configured; in-season the lock (5-min) and settle (10-min) cadence needs either Vercel Pro or a free external pinger (cron-job.org) hitting the job URLs with `?secret=`. Decide by Phase 3.
+  4. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
+  5. Domain purchase + Resend still pending (no rush until Phase 3).
 
 ---
 
@@ -31,24 +34,26 @@
 - [x] Project docs: CLAUDE.md, ROADMAP.md, CHANGELOG.md; `docs/` + `branding/` in repo
 - [x] Brand tokens: dark theme, poker-gold accent, swappable name/logo (`src/lib/brand.ts`)
 - [x] Full schema migration + 32-team seed written (`supabase/migrations/`)
-- [ ] Migrations applied to Supabase (needs service-role key / DB connection string)
-- [ ] Clerk wired with email OTP (needs Clerk keys — account being created)
-- [ ] Vercel deploys on push (needs repo name confirmed + env vars pasted)
-- [ ] `sync-schedule` run against ESPN; real 2026 Weeks 1–18 in `nfl_games`
+- [x] Migrations applied to Supabase (Robert, SQL Editor, Aug 12)
+- [x] Clerk keys live in Vercel env (email-OTP login UI ships with Phase 1 signup flow)
+- [x] Vercel deploys on push (`rztoler/the-ante` → project `the-ante`)
+- [x] `sync-schedule` run against ESPN: 272 games, 18 weeks, 0 errors (Aug 12)
 - [ ] Domain purchased → Cloudflare DNS → Resend domain verification (Robert; test domain until then)
 - **Exit criteria:** deployed app, email-code login works, real 2026 schedule in the DB.
 
-### Phase 1 — Game engine (Aug 17–23)
+### Phase 1 — Game engine (planned Aug 17–23; built Aug 12, ahead of schedule)
 
-- [ ] Signup → profile completion → Pending → admin approval flow
-- [ ] How to Play page with timestamped Accept gate
-- [ ] Pick submission: eligibility (usage <2, no consecutive, plays this week), wager validation (100–1,000, ≤ bankroll, sub-100 all-in), edit until reveal
-- [ ] `weeks` state machine end to end (upcoming → open → locked → revealed → settled)
-- [ ] Lock job + seeded idempotent auto-pick (AUTO-ANTE)
-- [ ] Reveal: lock-time and early-reveal (all actives in) paths
-- [ ] Settlement from official finals: ledger writes, push/void handling, elimination → ghost
-- [ ] Engine unit tests alongside (run every job twice in tests; assert no drift)
-- **Exit criteria:** full simulated week runs cleanly; ledger reconciles.
+- [x] Signup → profile completion (`/welcome`) → Pending → admin approval (`/admin`)
+- [x] Email-OTP combined sign-in/up (`EmailGate`, Clerk v7 future API, animated stage transitions); lazy user provisioning (no webhook — decision logged)
+- [x] How to Play page with timestamped Accept gate + live player rail
+- [x] Pick submission (`src/lib/picks.ts` + AnteCard): eligibility, wager validation incl. sub-100 all-in + overtime floor, edit until reveal, potential outcomes
+- [x] `weeks` state machine (upcoming/open → locked → revealed → settled)
+- [x] Lock job + seeded idempotent AUTO-ANTE (`/api/jobs/lock-week`)
+- [x] Early reveal the moment all actives are in (checked on every submit)
+- [x] Settlement (`/api/jobs/settle-games`): finals only, idempotent ledger writes, push/void, elimination → ghost, standings snapshots
+- [x] Engine unit tests: 26 passing (eligibility, wagers, seeded auto-pick determinism, settlement, elimination)
+- [ ] **Exit criterion left: full simulated week against the live DB** (needs deploy; then run lock-week + settle-games with test data)
+- [ ] Dashboard v1 shipped with Phase 1: header w/ rank+stack, weekly Ante card with countdown, The Table (basic). Full Phase 2 dashboard still to come.
 
 ### Phase 2 — Dashboard & social (Aug 24–30)
 
@@ -95,6 +100,13 @@
 - Scaffolded Next.js 16 + TS + Tailwind v4; deps: @supabase/supabase-js, @clerk/nextjs, resend, zod, date-fns-tz, geist, vitest.
 - Full schema migration + 32-team/league seed; brand tokens; dark/gold theme; login landing placeholder; conditional Clerk wiring; Supabase server/browser clients; ESPN normalizer + lock computation (5 passing tests); sync-schedule cron route (+ vercel.json cron, daily 06:00 ET); production build green; pushed to `TheAnteGame/App@main`.
 - Verified via WebFetch: ESPN API serves the 2026 season — Week 1 earliest event is NE @ SEA, Wed Sep 9 8:20 PM ET, exactly the early-game case the docs predicted.
+
+**Second half of session (deployment saga, resolved):**
+- Robert has two GitHub accounts (`rztoler` personal, `TheAnteGame` for this project) and his Vercel account (`roberttoler-8396`) is login-linked to `rztoler` only. Vercel could never see `TheAnteGame/App`, and every "Add GitHub Account" popup silently failed. Repo visibility was never the issue.
+- Resolution: made the repo public, then used Vercel's **clone-from-URL import** — Vercel cloned `TheAnteGame/App` into a new private repo **`rztoler/the-ante`** and created project `the-ante` with auto-deploy. That repo is now the single source of truth.
+- Disabled Vercel Authentication (deployment protection) on the project — it was the cause of the original "Request Access" wall.
+- Robert applied the schema via SQL Editor, entered all 7 env vars, redeployed. I triggered `sync-schedule` via the browser: **272 games / 18 weeks / 0 errors.** Live site verified at https://the-ante-inky.vercel.app (Clerk keys detected, landing page renders).
+- Vercel GitHub App also got installed on `TheAnteGame` (harmless now); a pending collaborator invite `TheAnteGame/App` → `rztoler` is moot and can be ignored/revoked.
 
 **Sandbox constraints discovered (IMPORTANT for future sessions):**
 - Cloud sessions can't `git push` to repos not formally attached to the session — use `scripts/push-via-api.mjs` (GitHub Git Data API via node fetch works fine with the PAT). Or attach the repo to the session when starting it.

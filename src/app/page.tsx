@@ -1,45 +1,66 @@
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { BRAND, VOCAB } from "@/lib/brand";
+import EmailGate from "@/components/EmailGate";
 
 /**
  * Page 1 — Sign Up / Login (wireframe 1).
- * Phase 0 placeholder: layout + copy per spec; the email OTP form activates in
- * Phase 1 once Clerk keys exist. Centered single column, logo, short intro,
- * email field with inline fine print, submit arrow, copyright.
+ * Centered single column on the animated "casino stage" backdrop. Logo carries
+ * the brand name, so the headline is a sales hook instead of repeating it.
  */
-export default function Home() {
+export default async function Home() {
   const clerkReady = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  if (clerkReady) {
+    const { userId } = await auth();
+    if (userId) redirect("/dashboard");
+  }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
-      <div className="w-full max-w-sm text-center">
+    <main className="relative flex flex-1 flex-col items-center justify-center px-6 py-16">
+      {/* Animated backdrop */}
+      <div className="stage" aria-hidden="true">
+        <div className="stage-blob stage-blob--purple" />
+        <div className="stage-blob stage-blob--red" />
+        <div className="stage-blob stage-blob--teal" />
+        <div className="stage-blob stage-blob--gold" />
+        <div className="stage-sweep" />
+        <div className="stage-glitter" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-xl text-center">
         <Image
           src={BRAND.logoOnDark}
           alt={BRAND.name}
-          width={180}
-          height={120}
+          width={640}
+          height={430}
           priority
-          className="mx-auto mb-8 h-auto w-40"
+          className="mx-auto mb-10 h-auto w-72 drop-shadow-[0_0_45px_rgba(229,163,61,0.25)] sm:w-80"
         />
-        <h1 className="mb-3 text-3xl font-bold tracking-tight">{BRAND.name}</h1>
-        <p className="mb-10 text-sm leading-relaxed text-ink-muted">
-          A season-long NFL points pool. Everyone starts with a 1,000-point
-          stack, picks one team to win outright each week, and antes 100–1,000
-          points. Highest bankroll after Week 18 is the {VOCAB.champion.toLowerCase()}.
+
+        <h1 className="display mb-6 text-4xl font-extrabold uppercase leading-[1.05] tracking-tight sm:text-5xl">
+          Can your stack survive{" "}
+          <span className="text-gold">18 weeks</span>?
+        </h1>
+
+        <p className="mx-auto mb-12 max-w-lg text-lg leading-relaxed text-ink-muted sm:text-xl">
+          A season-long NFL points pool. Start with 1,000 points, back one team
+          to win outright each week, and ante 100–1,000 on your gut. Highest
+          bankroll after Week 18 is the {VOCAB.champion.toLowerCase()}.
         </p>
 
         {clerkReady ? (
-          // Phase 1: replace with the Clerk email-OTP flow (slide transitions per spec)
-          <p className="text-sm text-gold">Login flow arrives in Phase 1.</p>
+          <EmailGate />
         ) : (
-          <div className="rounded-xl border border-edge bg-surface-card p-6">
-            <p className="text-sm text-ink-muted">
+          <div className="mx-auto max-w-sm rounded-2xl border border-edge bg-surface-card/70 p-6 backdrop-blur-sm">
+            <p className="text-base text-ink-muted">
               {VOCAB.signupCta} — signups open soon.
             </p>
           </div>
         )}
 
-        <p className="mt-12 text-xs text-ink-muted/60">
+        <p className="mt-14 text-xs text-ink-muted/60">
           Free-to-enter game of skill. No purchase necessary. ©{" "}
           {new Date().getFullYear()} {BRAND.name}.
         </p>

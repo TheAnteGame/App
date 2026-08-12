@@ -6,6 +6,19 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-12 — Session 1, part 3 (Phase 1: the game engine)
+
+- [engine] Pure engine library `src/lib/engine/` — eligibility (usage <2 / no-consecutive / bye), wager validation (100–1,000, ≤ stack, sub-100 forced all-in, overtime floor 1), seeded deterministic AUTO-ANTE (FNV-1a → mulberry32 per user+season+week), settlement (finals only; tie=push consuming usage; canceled=void; never settles in-progress/postponed), elimination at 0, ledger idempotency keys. **26 unit tests.**
+- [auth] `EmailGate` — combined email-OTP sign-in/up on the landing page (Clerk v7 future API: `signIn.emailCode`, `signUp.verifications`), slide transition between email→code stages. Middleware now protects everything except `/` and `/api/jobs/*`.
+- [auth] Lazy user provisioning in `requireUser()` (no Clerk webhook in beta — fewer moving parts; decision noted).
+- [onboarding] `/welcome` profile completion (first/last/phone) → Pending; pending users see the "you're in line" state with How-to-Play access only.
+- [rules] `/how-to-play` — distilled rules + detailed rules + legal placeholder, live player rail, one-time timestamped Accept gate (required before first pick).
+- [picks] `src/lib/picks.ts` — submit/edit until reveal with full server-side validation; ghosts submit shadow antes (validated vs fixed 1000); early reveal fires the moment every active player is in.
+- [dashboard] v1: header (name, rank, stack, BUSTED badge), weekly Ante card (live countdown, lock time w/ early-game note, eligible-team select with usage counts, wager input incl. forced all-in, win/lose projections, Ante Up, edit-until-reveal), The Table with rank/stack (ghosts dimmed).
+- [jobs] `/api/jobs/lock-week` (lock submitted, seeded auto-antes for stragglers, reveal) and `/api/jobs/settle-games` (refresh ESPN scores, settle finals via idempotent ledger, cache bankrolls, eliminate at 0, snapshot standings, close week). Both cron-secret-gated, both re-runnable with zero drift.
+- [admin] `/admin` (role-gated): pending approvals ("Give them a seat" → activate + league membership + starting-balance ledger + audit log), player list w/ anted/waiting (names only pre-reveal), all-18-weeks state grid.
+- [infra] vercel.json: daily cron backstops for lock/settle (Hobby plan limit — see ROADMAP blocker on in-season cadence).
+
 ## 2026-08-12 — Session 1
 
 - [docs] Created CLAUDE.md (project memory + session protocol), ROADMAP.md (phase checklist + session log), CHANGELOG.md (this file).
@@ -24,4 +37,10 @@ Format: `- [area] What changed — why (if not obvious)`
 - [jobs] sync-schedule route accepts `?secret=` in addition to the cron Bearer header so the admin can trigger it from a browser.
 - [tooling] `scripts/push-via-api.mjs` — pushes the git tree via GitHub's Git Data API for sandboxed sessions that can't `git push` directly.
 - [db] `supabase/ALL-IN-ONE.sql` — both migrations concatenated for pasting into the Supabase SQL Editor (sandbox can't reach the DB directly).
-- [repo] First push to `TheAnteGame/App@main` (45 files); Vercel auto-deploy wired to the repo.
+- [repo] First push to `TheAnteGame/App@main` (45 files).
+- [deploy] Repo home moved: Vercel cloned `TheAnteGame/App` → **`rztoler/the-ante`** (private, now the source of truth) and created project `the-ante` on Vercel account `roberttoler-8396`. `TheAnteGame/App` is stale.
+- [deploy] Production live at **https://the-ante-inky.vercel.app**; Vercel Authentication (deployment protection) disabled — it caused the "Request Access" wall.
+- [db] Schema + seeds applied to Supabase by Robert via SQL Editor.
+- [data] First `sync-schedule` run: 272 games / 18 weeks / 0 errors ingested from ESPN into `nfl_games`, week lock times computed (Week 1 = Wednesday early-game exception).
+- [env] All 7 env vars set in Vercel by Robert (Supabase ×3, Clerk ×2, CRON_SECRET, APP_URL).
+- [design] Landing page glow-up (Robert's direction): logo doubled with gold glow; **Kanit italic** added as the display font (self-hosted, matches the logo's hard italic cut — use `.display` class for headlines/CTAs app-wide); headline replaced brand-name repeat with a hook — "Can your stack survive 18 weeks?"; larger title/body type; animated casino-stage backdrop (drifting jewel-tone blobs in the four chip colors, rotating gold spotlight sweep, twinkle layer, vignette; pure CSS, honors prefers-reduced-motion). Verified via local Playwright screenshots, desktop + mobile.
