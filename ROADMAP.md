@@ -13,6 +13,7 @@
 - **Repo (SOURCE OF TRUTH):** `rztoler/the-ante` (private) — Vercel-created clone of `TheAnteGame/App`; every push to `main` auto-deploys. **`TheAnteGame/App` is now STALE** — do not push there.
 - **Vercel:** account `roberttoler-8396` ("Toler" hobby team), project **`the-ante`**, production domain **https://the-ante-inky.vercel.app** (deployment protection disabled). The old empty `ante` project on the same account can be deleted.
 - **Database:** schema + seeds applied (Robert, via SQL Editor); **272 games / 18 weeks ingested from ESPN, zero errors**; all env vars (7) set by Robert; Clerk keys live.
+- **REPO POLICY (Robert's directive, Aug 12): everything lives on the `TheAnteGame` GitHub. `rztoler` (his separate personal GitHub) is off-limits — no code, no repos, nothing.** Status of the fix: `TheAnteGame/App` is fully current (all Phase 1 code pushed); the Vercel project `the-ante` has been disconnected from `rztoler/the-ante`; the `rztoler` login connection has been removed from the Vercel account. Remaining: authorize Vercel↔TheAnteGame (a GitHub popup — one click), then connect `TheAnteGame/App` to the project and redeploy. The stale `rztoler/the-ante` repo can be deleted by Robert whenever.
 - **Blockers / Robert to-dos:**
   1. **GitHub PAT for `rztoler`** — Phase 1 code is committed locally in the cloud workspace but CANNOT DEPLOY without it (fine-grained, repo `rztoler/the-ante`, contents read/write).
   2. After Robert's first real login on the live site, make him commissioner — run in Supabase SQL Editor:
