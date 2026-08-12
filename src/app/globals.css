@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* The Ante — dark FanDuel-style theme, poker-gold accent (docs/01 Design language).
+   Tokens mirror src/lib/brand.ts COLORS. */
+
+:root {
+  --surface: #0b0e13;
+  --surface-raised: #141924;
+  --surface-card: #1a2130;
+  --border: #2a3242;
+  --gold: #e5a33d;
+  --gold-bright: #f5c15d;
+  --purple: #6b3fa0;
+  --red-orange: #e24a2e;
+  --teal: #1f7a6d;
+  --text-primary: #f4f6fa;
+  --text-secondary: #9aa5b5;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-card: var(--surface-card);
+  --color-edge: var(--border);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-brand-purple: var(--purple);
+  --color-loss: var(--red-orange);
+  --color-win: var(--teal);
+  --color-ink: var(--text-primary);
+  --color-ink-muted: var(--text-secondary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Big numbers (bankrolls, countdowns) always tabular so they don't jiggle */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
