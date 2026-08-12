@@ -42,7 +42,30 @@ export default function EmailGate() {
       return;
     }
 
-    if (inErr.code === "form_identifier_not_found") {
+    // Clerk errors may carry the code at the top level or nested in .errors[]
+    const codesOf = (err: unknown): string[] => {
+      const e = err as { code?: string; errors?: { code?: string }[] };
+      return [e.code, ...(e.errors?.map((x) => x.code) ?? [])].filter(
+        Boolean,
+      ) as string[];
+    };
+    const msgOf = (err: unknown): string => {
+      const e = err as {
+        longMessage?: string;
+        message?: string;
+        errors?: { longMessage?: string; message?: string }[];
+      };
+      return (
+        e.longMessage ??
+        e.errors?.[0]?.longMessage ??
+        e.message ??
+        e.errors?.[0]?.message ??
+        "unknown error"
+      );
+    };
+    console.error("[ante] signIn sendCode error", inErr);
+
+    if (codesOf(inErr).includes("form_identifier_not_found")) {
       // …new player: take a seat.
       const { error: upErr } = await signUp!.create({ emailAddress: addr });
       if (!upErr) {
@@ -53,10 +76,14 @@ export default function EmailGate() {
           setBusy(false);
           return;
         }
+        console.error("[ante] signUp sendEmailCode error", sendErr);
+        setError(`Couldn't send your code: ${msgOf(sendErr)}`);
+      } else {
+        console.error("[ante] signUp create error", upErr);
+        setError(`Couldn't start signup: ${msgOf(upErr)}`);
       }
-      setError("Couldn't start signup with that email. Double-check it?");
     } else {
-      setError("Something went sideways sending your code. Try again.");
+      setError(`Couldn't send your code: ${msgOf(inErr)}`);
     }
     setBusy(false);
   }
