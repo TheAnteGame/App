@@ -57,6 +57,16 @@
 - [ ] **Exit criterion left: full simulated week against the live DB** (needs deploy; then run lock-week + settle-games with test data)
 - [ ] Dashboard v1 shipped with Phase 1: header w/ rank+stack, weekly Ante card with countdown, The Table (basic). Full Phase 2 dashboard still to come.
 
+### Phase 1.5 — Hardening (from the Aug 12 end-of-phase code review)
+
+- [x] CRITICAL: atomic settlement (`settle_pick_atomic`, migration 0003) — ledger, bankroll, elimination, and future-pick ghosting in one transaction; errors leave picks locked instead of silently settled
+- [x] HIGH: `current_standings` view now `security_invoker` (anon key could read names/bankrolls) — **needs Robert's SQL paste (0003) to take effect**
+- [x] HIGH: game-day cadence via free GitHub Actions pinger (`gameday-pinger`, every 5 min lock / 10 min settle; requires repo to stay public — Actions aren't free on private repos). Vercel daily crons remain as backstop
+- [x] HIGH: ESPN winner derived from score when flags are missing (no false ties)
+- [x] HIGH: voided picks count toward team usage + no-consecutive (docs/02 §6 precedence confirmed by Robert); helpers moved to `engine/context.ts`; 32 tests total
+- [x] LOW: approve guards pending-only; settle fetches games by game_id (week-move → admin flag); snapshot W-L bounded; constants deduped
+- [ ] Remaining review findings for early Phase 2 (medium/low): pick-submit race guard vs early reveal; drop `?secret=` query param + timing-safe compare; Realtime client auth strategy (Clerk↔Supabase JWT or server-only reads) — REQUIRED before Table Talk; job-layer double-run drift tests via injectable data layer; dead week/pick states (`open`/`locked`/`draft`) — implement or shrink enums
+
 ### Phase 2 — Dashboard & social (Aug 24–30)
 
 - [ ] Weekly Ante card: countdown, pick flow, Ante Up, potential outcomes, post-reveal board flip
