@@ -38,6 +38,27 @@ export default async function Admin() {
     revalidatePath("/admin");
   }
 
+  async function decline(formData: FormData) {
+    "use server";
+    const actor = await requireUser();
+    if (!actor || actor.role !== "admin") return;
+    const userId = String(formData.get("userId"));
+    const dbi = supabaseAdmin();
+    const { data: before } = await dbi.from("users").select("*").eq("id", userId).single();
+    if (!before || before.status !== "pending") return; // decline applies to pending seats only
+    await dbi.from("users").update({ status: "removed" }).eq("id", userId);
+    await dbi.from("audit_log").insert({
+      actor_user_id: actor.id,
+      action: "decline_user",
+      entity: "users",
+      entity_id: userId,
+      before,
+      after: { ...before, status: "removed" },
+      reason: "Commissioner declined the seat request",
+    });
+    revalidatePath("/admin");
+  }
+
   const currentWeek = (weeks ?? []).find((w) =>
     ["upcoming", "open", "locked", "revealed"].includes(w.state),
   );
@@ -65,10 +86,9 @@ export default async function Admin() {
         )}
         <div className="space-y-2">
           {(pending ?? []).map((p) => (
-            <form
+            <div
               key={p.id}
-              action={approve}
-              className="flex items-center justify-between rounded-xl border border-edge bg-surface-card/70 px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-edge bg-surface-card/70 px-4 py-3"
             >
               <div>
                 <p className="font-medium">
@@ -76,14 +96,33 @@ export default async function Admin() {
                 </p>
                 <p className="text-xs text-ink-muted">{p.email} · {p.phone ?? "no phone"}</p>
               </div>
-              <input type="hidden" name="userId" value={p.id} />
-              <button
-                type="submit"
-                className="display rounded-lg bg-gold px-4 py-2 text-sm font-bold uppercase text-surface hover:bg-gold-bright"
-              >
-                Give them a seat
-              </button>
-            </form>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`mailto:${p.email}?subject=${encodeURIComponent("Your seat at The Ante")}`}
+                  className="rounded-lg border border-edge px-3 py-2 text-sm text-ink-muted hover:border-gold hover:text-ink"
+                >
+                  Email
+                </a>
+                <form action={decline}>
+                  <input type="hidden" name="userId" value={p.id} />
+                  <button
+                    type="submit"
+                    className="rounded-lg border border-loss/50 px-3 py-2 text-sm text-loss hover:bg-loss/10"
+                  >
+                    Decline
+                  </button>
+                </form>
+                <form action={approve}>
+                  <input type="hidden" name="userId" value={p.id} />
+                  <button
+                    type="submit"
+                    className="display rounded-lg bg-gold px-4 py-2 text-sm font-bold uppercase text-surface hover:bg-gold-bright"
+                  >
+                    Give them a seat
+                  </button>
+                </form>
+              </div>
+            </div>
           ))}
         </div>
       </section>
@@ -93,7 +132,7 @@ export default async function Admin() {
           Players ({players?.length ?? 0})
           {currentWeek && (
             <span className="ml-3 text-sm font-normal normal-case text-ink-muted">
-              Week {currentWeek.week} · anted: names only pre-reveal, never picks
+              Right column = Week {currentWeek.week} ante status (names only pre-reveal, never picks)
             </span>
           )}
         </h2>
@@ -112,7 +151,7 @@ export default async function Admin() {
               </span>
               {currentWeek && p.status === "active" && (
                 <span className={submittedThisWeek.has(p.id) ? "text-win" : "text-ink-muted"}>
-                  {submittedThisWeek.has(p.id) ? "✓ anted" : "waiting"}
+                  {submittedThisWeek.has(p.id) ? "✓ anted" : "no ante yet"}
                 </span>
               )}
             </div>
