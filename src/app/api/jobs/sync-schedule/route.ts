@@ -1,23 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncSchedule } from "@/lib/nfl/sync";
 import { SEASON, BETA_LEAGUE_ID } from "@/lib/constants";
+import { isCronAuthorized } from "@/lib/cron-auth";
 
 export const maxDuration = 300;
 
 /**
- * Vercel Cron → GET /api/jobs/sync-schedule
- * Auth: Authorization: Bearer ${CRON_SECRET} (Vercel Cron sends this once the
- * CRON_SECRET env var exists) — or ?secret=${CRON_SECRET} for manual admin
- * triggering from a browser.
+ * GET /api/jobs/sync-schedule — Authorization: Bearer ${CRON_SECRET} only.
+ * Manual runs: GitHub Actions → run-job workflow (Run workflow button).
  * Optional ?week=N syncs a single week; default is all 18.
  */
 export async function GET(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  const auth = req.headers.get("authorization");
-  const querySecret = req.nextUrl.searchParams.get("secret");
-  const authorized =
-    Boolean(secret) && (auth === `Bearer ${secret}` || querySecret === secret);
-  if (!authorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

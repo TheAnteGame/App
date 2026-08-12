@@ -1,0 +1,36 @@
+# The Ante — manual job trigger.
+# Replaces the old `?secret=` browser-trigger path (removed: secrets in URLs
+# leak into logs). CRON_SECRET stays in GitHub Actions secrets; anyone with
+# repo access can run a job from Actions → run-job → "Run workflow".
+
+name: run-job
+
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Which job route to run"
+        required: true
+        type: choice
+        options:
+          - lock-week
+          - settle-games
+          - sync-schedule
+          - reconcile
+      params:
+        description: "Optional query string, e.g. week=1&sync=0"
+        required: false
+        default: ""
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: call job route
+        run: |
+          curl -sS --max-time 290 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://the-ante-inky.vercel.app/api/jobs/${{ inputs.job }}?${{ inputs.params }}" \
+            -o response.json -w "HTTP %{http_code}\n"
+          cat response.json

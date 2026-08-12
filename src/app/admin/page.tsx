@@ -60,7 +60,7 @@ export default async function Admin() {
   }
 
   const currentWeek = (weeks ?? []).find((w) =>
-    ["upcoming", "open", "locked", "revealed"].includes(w.state),
+    ["upcoming", "revealed"].includes(w.state),
   );
   const submittedThisWeek = new Set(
     (picksThisSeason ?? [])

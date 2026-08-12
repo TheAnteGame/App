@@ -6,6 +6,20 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-12 — Session 2 (pre-Phase-2 hardening: remaining review findings)
+
+- [db] **Migration 0005** (`0005_phase2_prep.sql`): pick-submit race guard — a `picks_guard_mutation` BEFORE trigger rejects any team/wager mutation once the week has left `upcoming`, closing the submit-vs-early-reveal race at the DB layer (with a `set local ante.bypass_pick_guard` escape hatch for future audit-logged admin corrections).
+- [db] Dead states removed (same migration): `week_state` drops `open`/`locked`, `pick_state` drops `draft` — enums now match the real state machines (weeks `upcoming→revealed→settled`, picks `submitted→locked→settled`). All code refs updated.
+- [db] Table Talk groundwork (same migration): chat reads now RLS-gated to active/eliminated league members via a security-definer `is_chat_member()` keyed to the Clerk JWT (`auth.jwt()->>'sub'` ↔ `users.clerk_id`); admin-deleted messages hidden from clients; `chat_messages` added to the Realtime publication. Writes stay server-only. Decision #17.
+- [security] Job routes: `?secret=` query param REMOVED (secrets in URLs leak into request logs/browser history); Bearer-header-only with a constant-time compare (`src/lib/cron-auth.ts`). Manual triggering moved to the new **run-job** GitHub Actions workflow (Actions → run-job → Run workflow; CRON_SECRET stays in Actions secrets). Decision #19.
+- [jobs] Lock/settle orchestration extracted to a pure core (`src/lib/engine/jobs-core.ts`) over an injectable data layer; `src/lib/jobs.ts` is now the thin Supabase binding. Behavior unchanged.
+- [tests] **10 new job-layer drift tests** (44 total): double-run no-ops, crash-replay (week forced back mid-transition) with zero pick/ledger/bankroll drift, seeded auto-pick determinism across replays, partial-finals week stays open, tie→push, elimination ghosting future picks.
+- [jobs] Settle hardening: the week-complete check now counts `submitted` as well as `locked` picks, so a bug-state stray pick keeps the week open instead of being settled around.
+- [jobs] `settle-games` accepts `?sync=0` (skip ESPN refresh) so the simulated-week harness can settle hand-written finals.
+- [ops] New read-only `/api/jobs/reconcile` route (cron-gated): per-member cached-bankroll vs ledger-sum check, week states, pick counts — sim-week verification now, Phase 3 reconcile groundwork later.
+- [rules] **Bankroll Overtime ruling closed (Robert): keep the docs/02 §8 playoff tiebreaker as written.** Decision #16; OT code paths stay dormant until January.
+- [ops] Robert's local folder: applied `PASTE-INTO-SUPABASE-*.sql` files moved to `_to_delete/`.
+
 ## 2026-08-12 — Session 1, part 6 (full rules conformance audit + fixes)
 
 - [audit] Rule-by-rule conformance audit of docs/02 §1–9 vs code: crown-jewel rules (privacy, settlement discipline, elimination, AUTO-ANTE, locks) all CONFORM; discrepancies below fixed same-day. Decisions #10–#15 added to docs/05.

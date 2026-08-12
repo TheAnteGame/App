@@ -8,8 +8,8 @@
 
 ## Current status
 
-- **Phase:** 1.5 complete (Phases 0 + 1 + hardening all DONE, Aug 12). Next: Phase 2 — Dashboard & social.
-- **Session count:** 1 (marathon)
+- **Phase:** 1.5 FULLY complete incl. all review follow-ups (Session 2, Aug 12). Next: Phase 2 — Dashboard & social (design-led: Robert wants the UX "easy but jawdropping" — use the design workflow for Phase 2 UI).
+- **Session count:** 2
 - **Repo (SOURCE OF TRUTH): `TheAnteGame/App@main`** → Vercel auto-deploys → https://the-ante-inky.vercel.app
 - **Vercel:** account `roberttoler-8396`, project `the-ante`, deployment protection off.
 - **Database:** migrations 0001–0004 applied; 272 games / 18 weeks ingested; Robert live as commissioner; Clerk email-only auth working end to end.
@@ -17,12 +17,13 @@
 - **PIPELINE (final, working since Aug 12 evening):** `TheAnteGame/App@main` → Vercel project `the-ante` (account roberttoler-8396) → **https://the-ante-inky.vercel.app**. The Vercel account's GitHub login connection is now `TheAnteGame` (Robert authorized it). The stored `TheAnteGame` PAT pushes via `scripts/push-via-api.mjs` — sessions are fully autonomous for shipping. Landing glow-up + all of Phase 1 verified LIVE.
 - **Cleanup (Robert, whenever):** delete the stale `rztoler/the-ante` repo on GitHub; delete the empty old `ante` project on Vercel. Neither affects anything.
 - **DB state: migrations 0001–0004 all applied to prod (Aug 12).** Atomic settlement + Postgres-level rule enforcement are LIVE.
-- **OPEN RULING (Robert): Bankroll Overtime** — keep docs/02 §8 playoff tiebreaker (A), simplify to co-champions (B), or a different tiebreaker (C). OT code paths are dormant until January either way.
+- ~~OPEN RULING: Bankroll Overtime~~ **RESOLVED (Robert, Aug 12): keep the docs/02 §8 playoff tiebreaker as written** (decision #16). OT code stays dormant until January.
 - **Blockers / Robert to-dos:**
-  1. ~~Commissioner SQL~~ DONE. ~~Cron cadence~~ DONE (GitHub Actions pinger live).
+  1. **Paste migration 0005 into the Supabase SQL Editor** (`PASTE-INTO-SUPABASE-0005.sql` in the local folder / `supabase/migrations/0005_phase2_prep.sql`) — race guard + enum cleanup + Table Talk RLS.
   2. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
   3. Domain purchase + Resend still pending (no rush until Phase 3).
-  4. Optional cleanup: test accounts (ante.tester+clerk_test, rztoler gmail) in pending queue / Clerk users.
+  4. Optional cleanup: test accounts (ante.tester+clerk_test, rztoler gmail) in pending queue / Clerk users; delete stale `rztoler/the-ante` repo; delete empty old `ante` Vercel project.
+  5. Before Table Talk ships (Phase 2): Supabase dashboard → Authentication → Third-Party Auth → add Clerk (decision #17).
 
 ---
 
@@ -66,7 +67,7 @@
 - [x] HIGH: ESPN winner derived from score when flags are missing (no false ties)
 - [x] HIGH: voided picks count toward team usage + no-consecutive (docs/02 §6 precedence confirmed by Robert); helpers moved to `engine/context.ts`; 32 tests total
 - [x] LOW: approve guards pending-only; settle fetches games by game_id (week-move → admin flag); snapshot W-L bounded; constants deduped
-- [ ] Remaining review findings for early Phase 2 (medium/low): pick-submit race guard vs early reveal; drop `?secret=` query param + timing-safe compare; Realtime client auth strategy (Clerk↔Supabase JWT or server-only reads) — REQUIRED before Table Talk; job-layer double-run drift tests via injectable data layer; dead week/pick states (`open`/`locked`/`draft`) — implement or shrink enums
+- [x] Remaining review findings — ALL CLOSED in Session 2 (Aug 12): pick-submit race guard (DB trigger, migration 0005); `?secret=` dropped + timing-safe compare (manual runs via `run-job` Actions workflow); Realtime auth strategy decided + RLS shipped (decision #17); job-layer double-run drift tests (injectable data layer, 10 new tests); dead states shrunk out of the enums (decision #18)
 
 ### Phase 2 — Dashboard & social (Aug 24–30)
 
@@ -104,6 +105,21 @@
 ## Session Log
 
 > Newest first. Every session appends: date, what got done, exact stopping point, next actions, blockers.
+
+### Session 2 — Aug 12, 2026
+
+**Done:**
+- Cold-start orientation per protocol; cloned repo, verified 34 tests green and the local doc mirror matched the repo exactly.
+- **All five remaining Phase 1.5 review findings closed:** (1) pick-submit race guard as a Postgres BEFORE trigger (migration 0005) with friendly error surfaced in `submitPick`; (2) `?secret=` removed from all job routes, Bearer-only with timing-safe compare, new `run-job` workflow_dispatch for manual runs; (3) Realtime auth decided — Clerk third-party JWT + RLS membership function, chat table in the Realtime publication (decision #17; Robert has one dashboard step before Table Talk); (4) jobs refactored to a pure core (`engine/jobs-core.ts`) over an injectable data layer with 10 double-run/crash-replay drift tests — 44 tests total; (5) dead enum states shrunk (decision #18).
+- Settle job defensive fix: stray `submitted` picks now keep a week open.
+- New `/api/jobs/reconcile` read-only integrity route (ledger vs cached bankroll, week/pick states) — sim-week verification + Phase 3 reconcile groundwork.
+- **Bankroll Overtime ruling closed:** keep the playoff tiebreaker (Robert; decision #16).
+- Robert's local folder: applied PASTE-*.sql files moved to `_to_delete/`.
+- Robert's question answered: no code on his machine by design (GitHub-centric flow from Session 1); repo is public, clone anytime.
+
+**Stopping point / next actions:** see Current status blockers — Robert pastes migration 0005; then run the **full simulated week** against the live DB (sim scripts in the local folder: setup → lock → finals → settle?sync=0 → reconcile → cleanup). After that: Phase 2, design-led ("easy but jawdropping" per Robert — bring the design workflow into the dashboard build).
+
+**Credentials note:** session env has no TheAnteGame PAT and no CRON_SECRET — PAT must be provided in-chat per session for pushes; job triggering works via the run-job workflow once the PAT is available (or Robert clicks Run workflow in the Actions UI).
 
 ### Session 1 — Aug 12, 2026
 
