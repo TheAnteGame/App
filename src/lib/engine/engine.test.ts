@@ -72,11 +72,14 @@ describe("wager validation (docs/02 §2, §8)", () => {
   it("zero bankroll can never wager", () => {
     expect(validateWager(0, 0, reg).ok).toBe(false);
   });
-  it("overtime floor is 1, still capped by bankroll and max", () => {
+  it("overtime floor is 1, ceiling is FULL bankroll (docs/02 §8 — no 1000 cap)", () => {
     const ot = { min: 100, max: 1000, isOvertime: true };
     expect(validateWager(1, 800, ot).ok).toBe(true);
     expect(validateWager(0, 800, ot).ok).toBe(false);
     expect(validateWager(801, 800, ot).ok).toBe(false);
+    expect(validateWager(1500, 2400, ot).ok).toBe(true); // champion-tie stacks exceed 1000
+    expect(validateWager(2400, 2400, ot).ok).toBe(true);
+    expect(validateWager(2401, 2400, ot).ok).toBe(false);
   });
   it("auto-wager is 100 or the whole sub-100 stack", () => {
     expect(autoWager(1000)).toBe(100);

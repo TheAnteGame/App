@@ -6,6 +6,18 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-12 — Session 1, part 6 (full rules conformance audit + fixes)
+
+- [audit] Rule-by-rule conformance audit of docs/02 §1–9 vs code: crown-jewel rules (privacy, settlement discipline, elimination, AUTO-ANTE, locks) all CONFORM; discrepancies below fixed same-day. Decisions #10–#15 added to docs/05.
+- [rules-fix] **Overtime team-use exemption** (docs/02 §8): OT weeks now skip max-2/no-consecutive checks in submitPick (only "plays this round" applies).
+- [rules-fix] **Overtime wager ceiling** = full bankroll, not 1,000 (docs/02 §8): engine fixed + migration 0004 relaxes the DB CHECK.
+- [rules-fix] **Validation now lives in Postgres** (CLAUDE.md hard rule): migration 0004 adds a `picks` BEFORE trigger enforcing wager-vs-live-bankroll bounds, sub-100 all-in, ghost 100–1,000 shadow antes, max-2 team uses, and no-consecutive-weeks at the database layer.
+- [rules-fix] **Strict "official final"**: ESPN post-game state without `completed=true` now stays `in_progress` — settlement waits for the real final.
+- [rules-fix] **Ghost picks obey the same team-use limits** vs their own full history (decision #11); shadow stack fixed at 1,000, documented.
+- [rules-fix] **Phone required** at profile completion (docs/02 §1), client + server.
+- [docs] docs/02 §4 privacy wording corrected: boundary is reveal, not lock (matches code + CLAUDE.md).
+- [tests] 34 passing (OT full-bankroll wagers, ghost usage limits, strict-final normalization added).
+
 ## 2026-08-12 — Session 1, part 5 (first live users + polish)
 
 - [auth-fix] Clerk dashboard config corrected (root causes of "code won't take"): **username requirement OFF** (was blocking every sign-up from finalizing), phone sign-up/sign-in/require OFF (Pro SMS features, unused by design — phone lives in our DB). Email is the only Clerk requirement now. Verified end-to-end with a `+clerk_test` signup.

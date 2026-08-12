@@ -9,8 +9,10 @@ export type WagerValidation =
  * - integer
  * - regular season: 100–1,000, never more than bankroll; if bankroll < 100 the
  *   player MUST wager the entire remaining bankroll (all-in)
- * - overtime: floor is 1 (distinctness across tied players is enforced at the
- *   DB level by a partial unique index; the engine only validates the range)
+ * - overtime (docs/02 §8, docs/05 #6): floor is 1 and the ceiling is the FULL
+ *   bankroll (no 1,000 cap — champion-tie bankrolls exceed 1,000 routinely);
+ *   distinctness across tied players is enforced at the DB level by a partial
+ *   unique index
  */
 export function validateWager(
   wager: number,
@@ -21,6 +23,7 @@ export function validateWager(
   if (bankroll <= 0) return { ok: false, error: "No bankroll left to wager." };
 
   const floor = rules.isOvertime ? 1 : rules.min;
+  const ceiling = rules.isOvertime ? bankroll : rules.max;
 
   if (!rules.isOvertime && bankroll < rules.min) {
     // Sub-100 stack: forced all-in, nothing else is legal.
@@ -33,7 +36,7 @@ export function validateWager(
   }
 
   if (wager < floor) return { ok: false, error: `Minimum ante is ${floor}.` };
-  if (wager > rules.max) return { ok: false, error: `Maximum ante is ${rules.max}.` };
+  if (wager > ceiling) return { ok: false, error: `Maximum ante is ${ceiling}.` };
   if (wager > bankroll)
     return { ok: false, error: `You can't ante more than your stack (${bankroll}).` };
   return { ok: true, wager };

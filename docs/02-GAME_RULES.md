@@ -18,7 +18,7 @@ Each NFL team may be used **at most twice** per player during the regular season
 
 Normal lock is **Thursday 3:00 PM Eastern** (`America/New_York`, never a fixed offset). If any game in the NFL week kicks off earlier than that, the lock moves to **before the first kickoff of that week** and the actual lock time is displayed prominently. (This applies immediately: Week 1 of 2026 opens on a **Wednesday**.) The admin may override a lock time before the week opens.
 
-Before lock, players can see standings and who has or hasn't submitted, but never other players' teams or wagers. A player may edit their own pick until reveal. **Reveal happens at lock time — or earlier, the moment every active player has submitted.** Once reveal fires, all picks and wagers are shown simultaneously and nothing can be edited through the player UI. Any later admin correction creates an audit record.
+Before **reveal**, players can see standings and who has or hasn't submitted, but never other players' teams or wagers. A player may edit their own pick until reveal. **Reveal happens at lock time — or earlier, the moment every active player has submitted.** Once reveal fires, all picks and wagers are shown simultaneously and nothing can be edited through the player UI. Any later admin correction creates an audit record. *(Wording fixed Aug 12: the privacy boundary is reveal, not lock — an early reveal legitimately shows picks before the lock time.)*
 
 ## 5. Missed picks (auto-pick)
 

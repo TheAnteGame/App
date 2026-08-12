@@ -25,14 +25,23 @@ describe("eligibilityFor (docs/02 §3, §6)", () => {
     expect(input.priorWeekTeamId).toBe(12);
   });
 
-  it("ghost picks and same/future weeks never count", () => {
+  it("same/future weeks never count", () => {
     const input = eligibilityFor(5, [], [
-      H(2, 3, "win", true), // ghost
       H(5, 4, null), // same week
       H(6, 5, null), // future
     ]);
     expect(input.usage.size).toBe(0);
     expect(input.priorWeekTeamId).toBeNull();
+  });
+
+  it("ghost picks count toward the ghost's own limits (decision Aug 12)", () => {
+    const input = eligibilityFor(6, [], [
+      H(2, 3, "win"), // real pick before busting
+      H(4, 3, "loss", true), // ghost pick, same team
+      H(5, 8, "win", true), // ghost pick last week
+    ]);
+    expect(input.usage.get(3)).toBe(2); // team 3 used up across real+ghost
+    expect(input.priorWeekTeamId).toBe(8); // no back-to-back for ghosts either
   });
 });
 
@@ -62,5 +71,11 @@ describe("normalizeEspnEvent winner inference (review fix #4)", () => {
 
   it("only calls a tie when scores are genuinely equal", () => {
     expect(normalizeEspnEvent(event("17", "17"), 2026, 1).winner_abbr).toBeNull();
+  });
+
+  it("post-game state WITHOUT completed=true stays in_progress (strict official final)", () => {
+    const e = event("27", "24");
+    e.competitions[0].status.type.completed = false;
+    expect(normalizeEspnEvent(e, 2026, 1).status).toBe("in_progress");
   });
 });

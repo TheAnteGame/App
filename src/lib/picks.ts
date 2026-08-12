@@ -47,7 +47,14 @@ export async function submitPick(
   const games = (await weekGames(week)).map(toGameLite);
   const { bankroll, picks: history } = await memberContext(user.id);
 
-  const elig = evaluateTeam(teamId, eligibilityFor(week, games, history));
+  // docs/02 §8: regular-season team-use limits do NOT apply in Bankroll
+  // Overtime — only "plays this round" matters, so OT eligibility is computed
+  // against an empty history.
+  const isOvertime = Boolean(weekRow.is_overtime);
+  const elig = evaluateTeam(
+    teamId,
+    eligibilityFor(week, games, isOvertime ? [] : history),
+  );
   if (!elig.eligible) {
     const msg = {
       bye: "That team isn't playing this week.",
@@ -62,7 +69,7 @@ export async function submitPick(
   const v = validateWager(wager, effectiveBankroll, {
     min: WAGER_MIN,
     max: WAGER_MAX,
-    isOvertime: Boolean(weekRow.is_overtime),
+    isOvertime,
   });
   if (!v.ok) return { ok: false, error: v.error };
 

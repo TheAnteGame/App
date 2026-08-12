@@ -21,8 +21,15 @@ export function normalizeAbbr(espnAbbr: string): string {
   return ABBR_FIXUPS[upper] ?? upper;
 }
 
-/** Map ESPN event status → our game_status enum. */
-export function normalizeStatus(espnState: string, detail?: string): string {
+/** Map ESPN event status → our game_status enum.
+ *  "Official final" (docs/02 §6) is read strictly: ESPN must say state=post
+ *  AND completed=true. A post-game state without the completed flag stays
+ *  in_progress — settlement waits rather than guesses. */
+export function normalizeStatus(
+  espnState: string,
+  detail?: string,
+  completed?: boolean,
+): string {
   const d = (detail ?? "").toLowerCase();
   if (d.includes("postponed")) return "postponed";
   if (d.includes("canceled") || d.includes("cancelled")) return "canceled";
@@ -32,7 +39,7 @@ export function normalizeStatus(espnState: string, detail?: string): string {
     case "in":
       return "in_progress";
     case "post":
-      return "final";
+      return completed === false ? "in_progress" : "final";
     default:
       return "scheduled";
   }
@@ -92,6 +99,7 @@ export function normalizeEspnEvent(
   const status = normalizeStatus(
     comp.status.type.state,
     comp.status.type.detail,
+    comp.status.type.completed,
   );
   const isFinal = status === "final";
 

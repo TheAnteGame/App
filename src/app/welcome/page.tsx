@@ -22,10 +22,10 @@ export default async function Welcome() {
     const first = String(formData.get("first") ?? "").trim();
     const last = String(formData.get("last") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
-    if (!first || !last) return;
+    if (!first || !last || !phone) return; // docs/02 §1: signup collects all three
     await supabaseAdmin()
       .from("users")
-      .update({ first_name: first, last_name: last, phone: phone || null })
+      .update({ first_name: first, last_name: last, phone })
       .eq("id", u.id);
     revalidatePath("/welcome");
     redirect("/dashboard");
@@ -68,6 +68,7 @@ export default async function Welcome() {
           <input
             name="phone"
             type="tel"
+            required
             placeholder="Mobile phone (stored for later — we only email in beta)"
             className="w-full rounded-xl border border-edge bg-surface-card/80 px-4 py-3 text-ink outline-none backdrop-blur-sm placeholder:text-ink-muted/50 focus:border-gold"
           />
