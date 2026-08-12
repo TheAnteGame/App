@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { VOCAB } from "@/lib/brand";
 
@@ -14,7 +13,6 @@ type Stage = "email" | "code";
  * future API (signIn.emailCode / signUp.verifications).
  */
 export default function EmailGate() {
-  const router = useRouter();
   const { signIn } = useSignIn();
   const { signUp } = useSignUp();
 
@@ -93,24 +91,64 @@ export default function EmailGate() {
     setBusy(true);
     setError(null);
     const c = code.trim();
+    const describe = (err: unknown): string => {
+      const x = err as {
+        longMessage?: string;
+        message?: string;
+        code?: string;
+        errors?: { longMessage?: string; message?: string; code?: string }[];
+      };
+      return (
+        x.longMessage ??
+        x.errors?.[0]?.longMessage ??
+        x.message ??
+        x.errors?.[0]?.message ??
+        x.code ??
+        "unknown error"
+      );
+    };
 
-    if (mode === "signin") {
-      const { error: vErr } = await signIn!.emailCode.verifyCode({ code: c });
-      if (!vErr) {
-        await signIn!.finalize();
-        router.push("/dashboard");
+    try {
+      if (mode === "signin") {
+        const { error: vErr } = await signIn!.emailCode.verifyCode({ code: c });
+        if (vErr) {
+          console.error("[ante] verifyCode error", vErr);
+          setError(`Code check failed: ${describe(vErr)}`);
+          setBusy(false);
+          return;
+        }
+        const { error: fErr } = await signIn!.finalize();
+        if (fErr) {
+          console.error("[ante] signIn finalize error", fErr);
+          setError(`Almost there, but the session didn't start: ${describe(fErr)}`);
+          setBusy(false);
+          return;
+        }
+        // Hard navigation so the fresh session reaches the server on first load
+        window.location.assign("/dashboard");
         return;
       }
-    } else {
+
       const { error: vErr } = await signUp!.verifications.verifyEmailCode({ code: c });
-      if (!vErr) {
-        await signUp!.finalize();
-        router.push("/welcome");
+      if (vErr) {
+        console.error("[ante] verifyEmailCode error", vErr);
+        setError(`Code check failed: ${describe(vErr)}`);
+        setBusy(false);
         return;
       }
+      const { error: fErr } = await signUp!.finalize();
+      if (fErr) {
+        console.error("[ante] signUp finalize error", fErr, "status:", signUp!.status);
+        setError(`Almost there, but the account didn't finalize: ${describe(fErr)}`);
+        setBusy(false);
+        return;
+      }
+      window.location.assign("/welcome");
+    } catch (err) {
+      console.error("[ante] verify threw", err);
+      setError(`Unexpected error: ${describe(err)}`);
+      setBusy(false);
     }
-    setError("Wrong or expired code. Check the email and retry.");
-    setBusy(false);
   }
 
   return (
