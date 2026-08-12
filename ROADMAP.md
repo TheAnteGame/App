@@ -16,6 +16,8 @@
 - **REPO POLICY (Robert's directive, Aug 12): everything lives on the `TheAnteGame` GitHub. `rztoler` (his separate personal GitHub) is off-limits — no code, no repos, nothing.**
 - **PIPELINE (final, working since Aug 12 evening):** `TheAnteGame/App@main` → Vercel project `the-ante` (account roberttoler-8396) → **https://the-ante-inky.vercel.app**. The Vercel account's GitHub login connection is now `TheAnteGame` (Robert authorized it). The stored `TheAnteGame` PAT pushes via `scripts/push-via-api.mjs` — sessions are fully autonomous for shipping. Landing glow-up + all of Phase 1 verified LIVE.
 - **Cleanup (Robert, whenever):** delete the stale `rztoler/the-ante` repo on GitHub; delete the empty old `ante` project on Vercel. Neither affects anything.
+- **DB state: migrations 0001–0004 all applied to prod (Aug 12).** Atomic settlement + Postgres-level rule enforcement are LIVE.
+- **OPEN RULING (Robert): Bankroll Overtime** — keep docs/02 §8 playoff tiebreaker (A), simplify to co-champions (B), or a different tiebreaker (C). OT code paths are dormant until January either way.
 - **Blockers / Robert to-dos:**
   1. After Robert's first real login on the live site, make him commissioner — run in Supabase SQL Editor:
      `update users set role = 'admin', status = 'active' where email = 'robert.toler@growthpropulsion.com';`
@@ -60,7 +62,7 @@
 ### Phase 1.5 — Hardening (from the Aug 12 end-of-phase code review)
 
 - [x] CRITICAL: atomic settlement (`settle_pick_atomic`, migration 0003) — ledger, bankroll, elimination, and future-pick ghosting in one transaction; errors leave picks locked instead of silently settled
-- [x] HIGH: `current_standings` view now `security_invoker` (anon key could read names/bankrolls) — **needs Robert's SQL paste (0003) to take effect**
+- [x] HIGH: `current_standings` view now `security_invoker` — **applied to prod (Robert pasted 0003+0004, Aug 12)**
 - [x] HIGH: game-day cadence via free GitHub Actions pinger (`gameday-pinger`, every 5 min lock / 10 min settle; requires repo to stay public — Actions aren't free on private repos). Vercel daily crons remain as backstop
 - [x] HIGH: ESPN winner derived from score when flags are missing (no false ties)
 - [x] HIGH: voided picks count toward team usage + no-consecutive (docs/02 §6 precedence confirmed by Robert); helpers moved to `engine/context.ts`; 32 tests total
