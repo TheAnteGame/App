@@ -8,22 +8,21 @@
 
 ## Current status
 
-- **Phase:** 0 — Foundations (DONE except interactive login UI, which is Phase 1 work anyway)
-- **Session count:** 1
-- **Repo (SOURCE OF TRUTH):** `rztoler/the-ante` (private) — Vercel-created clone of `TheAnteGame/App`; every push to `main` auto-deploys. **`TheAnteGame/App` is now STALE** — do not push there.
-- **Vercel:** account `roberttoler-8396` ("Toler" hobby team), project **`the-ante`**, production domain **https://the-ante-inky.vercel.app** (deployment protection disabled). The old empty `ante` project on the same account can be deleted.
-- **Database:** schema + seeds applied (Robert, via SQL Editor); **272 games / 18 weeks ingested from ESPN, zero errors**; all env vars (7) set by Robert; Clerk keys live.
+- **Phase:** 1.5 complete (Phases 0 + 1 + hardening all DONE, Aug 12). Next: Phase 2 — Dashboard & social.
+- **Session count:** 1 (marathon)
+- **Repo (SOURCE OF TRUTH): `TheAnteGame/App@main`** → Vercel auto-deploys → https://the-ante-inky.vercel.app
+- **Vercel:** account `roberttoler-8396`, project `the-ante`, deployment protection off.
+- **Database:** migrations 0001–0004 applied; 272 games / 18 weeks ingested; Robert live as commissioner; Clerk email-only auth working end to end.
 - **REPO POLICY (Robert's directive, Aug 12): everything lives on the `TheAnteGame` GitHub. `rztoler` (his separate personal GitHub) is off-limits — no code, no repos, nothing.**
 - **PIPELINE (final, working since Aug 12 evening):** `TheAnteGame/App@main` → Vercel project `the-ante` (account roberttoler-8396) → **https://the-ante-inky.vercel.app**. The Vercel account's GitHub login connection is now `TheAnteGame` (Robert authorized it). The stored `TheAnteGame` PAT pushes via `scripts/push-via-api.mjs` — sessions are fully autonomous for shipping. Landing glow-up + all of Phase 1 verified LIVE.
 - **Cleanup (Robert, whenever):** delete the stale `rztoler/the-ante` repo on GitHub; delete the empty old `ante` project on Vercel. Neither affects anything.
 - **DB state: migrations 0001–0004 all applied to prod (Aug 12).** Atomic settlement + Postgres-level rule enforcement are LIVE.
 - **OPEN RULING (Robert): Bankroll Overtime** — keep docs/02 §8 playoff tiebreaker (A), simplify to co-champions (B), or a different tiebreaker (C). OT code paths are dormant until January either way.
 - **Blockers / Robert to-dos:**
-  1. After Robert's first real login on the live site, make him commissioner — run in Supabase SQL Editor:
-     `update users set role = 'admin', status = 'active' where email = 'robert.toler@growthpropulsion.com';`
-  2. **Vercel Hobby cron limit:** crons run at most daily. Daily backstops are configured; in-season the lock (5-min) and settle (10-min) cadence needs either Vercel Pro or a free external pinger (cron-job.org) hitting the job URLs with `?secret=`. Decide by Phase 3.
-  3. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
-  4. Domain purchase + Resend still pending (no rush until Phase 3).
+  1. ~~Commissioner SQL~~ DONE. ~~Cron cadence~~ DONE (GitHub Actions pinger live).
+  2. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
+  3. Domain purchase + Resend still pending (no rush until Phase 3).
+  4. Optional cleanup: test accounts (ante.tester+clerk_test, rztoler gmail) in pending queue / Clerk users.
 
 ---
 
