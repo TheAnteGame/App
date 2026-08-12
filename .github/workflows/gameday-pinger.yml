@@ -1,0 +1,40 @@
+# The Ante — game-day job pinger.
+# Vercel Hobby crons only run daily; the game needs lock checks every ~5 min
+# and score settlement every ~10 min (docs/03 Jobs). GitHub Actions scheduled
+# workflows are free on public repos, so this pings the (CRON_SECRET-gated)
+# job routes on the spec cadence. The secret lives in GitHub Actions secrets,
+# never in this file.
+#
+# Note: GitHub may delay scheduled runs by a few minutes under load — fine for
+# our purposes (locks are enforced by lock_at server-side regardless).
+
+name: gameday-pinger
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # every 5 minutes
+  workflow_dispatch: {}
+
+concurrency:
+  group: gameday-pinger
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: lock-week (every run)
+        run: |
+          curl -fsS --max-time 120 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://the-ante-inky.vercel.app/api/jobs/lock-week" | head -c 500
+      - name: settle-games (every other run ≈ 10 min)
+        run: |
+          if [ $(( 10#$(date -u +%M) % 10 )) -lt 5 ]; then
+            curl -fsS --max-time 280 \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+              "https://the-ante-inky.vercel.app/api/jobs/settle-games" | head -c 500
+          else
+            echo "skipped this cycle"
+          fi

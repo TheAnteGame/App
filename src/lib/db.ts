@@ -75,10 +75,12 @@ export function profileComplete(u: AppUser): boolean {
   return Boolean(u.first_name && u.last_name);
 }
 
-/** Approve a player: activate, add to the beta league, write starting balance. */
+/** Approve a player: activate, add to the beta league, write starting balance.
+ *  Pending seats only — approving an eliminated/removed id must not resurrect them. */
 export async function approveUser(userId: string, actorId: string) {
   const db = supabaseAdmin();
   const { data: before } = await db.from("users").select("*").eq("id", userId).single();
+  if (!before || before.status !== "pending") return;
   await db.from("users").update({ status: "active" }).eq("id", userId);
   await db
     .from("league_members")

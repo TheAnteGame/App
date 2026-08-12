@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncSchedule } from "@/lib/nfl/sync";
+import { SEASON, BETA_LEAGUE_ID } from "@/lib/constants";
 
 export const maxDuration = 300;
-
-const SEASON = 2026;
-const BETA_LEAGUE_ID = "00000000-0000-0000-0000-000000000001";
 
 /**
  * Vercel Cron → GET /api/jobs/sync-schedule

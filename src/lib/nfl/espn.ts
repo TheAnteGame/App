@@ -99,7 +99,19 @@ export function normalizeEspnEvent(
   if (isFinal) {
     if (home.winner) winner = normalizeAbbr(home.team.abbreviation);
     else if (away.winner) winner = normalizeAbbr(away.team.abbreviation);
-    // neither flagged → tie → winner stays null (regular-season tie = PUSH)
+    else {
+      // ESPN sometimes omits winner flags right after a game goes final.
+      // The score is the truth: derive the winner from it, and only call a
+      // tie when the scores are genuinely equal.
+      const hs = Number(home.score ?? NaN);
+      const as = Number(away.score ?? NaN);
+      if (Number.isFinite(hs) && Number.isFinite(as) && hs !== as) {
+        winner = normalizeAbbr(
+          (hs > as ? home : away).team.abbreviation,
+        );
+      }
+      // equal or unparsable scores → winner stays null (tie / admin review)
+    }
   }
 
   return {

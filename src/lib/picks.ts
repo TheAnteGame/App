@@ -1,42 +1,16 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { BETA_LEAGUE_ID, SEASON, WAGER_MIN, WAGER_MAX } from "@/lib/constants";
-import { evaluateTeam, type EligibilityInput } from "@/lib/engine/eligibility";
+import { evaluateTeam } from "@/lib/engine/eligibility";
 import { validateWager } from "@/lib/engine/wager";
-import type { GameLite } from "@/lib/engine/types";
+import { eligibilityFor, toGameLite } from "@/lib/engine/context";
 import { weekGames, memberContext, type AppUser } from "@/lib/db";
 
+// Pure helpers live in the engine (testable, no server-only deps); re-export
+// so existing imports keep working.
+export { eligibilityFor, toGameLite } from "@/lib/engine/context";
+
 export type SubmitResult = { ok: true } | { ok: false; error: string };
-
-export function toGameLite(g: Record<string, unknown>): GameLite {
-  return {
-    id: g.id as string,
-    week: g.week as number,
-    homeTeamId: g.home_team_id as number,
-    awayTeamId: g.away_team_id as number,
-    kickoffAt: new Date(g.kickoff_at as string),
-    status: g.status as GameLite["status"],
-    winnerTeamId: (g.winner_team_id as number | null) ?? null,
-  };
-}
-
-/** Build the eligibility input for a user+week from their pick history. */
-export function eligibilityFor(
-  week: number,
-  games: GameLite[],
-  history: { week: number; team_id: number; result: string | null; state: string; is_ghost: boolean }[],
-): EligibilityInput {
-  const usage = new Map<number, number>();
-  let priorWeekTeamId: number | null = null;
-  for (const p of history) {
-    if (p.is_ghost || p.week >= week) continue;
-    // voids don't consume usage (admin can override at the DB level)
-    if (p.result === "void") continue;
-    usage.set(p.team_id, (usage.get(p.team_id) ?? 0) + 1);
-    if (p.week === week - 1) priorWeekTeamId = p.team_id;
-  }
-  return { week, games, usage, priorWeekTeamId };
-}
 
 /**
  * Submit or edit a pick (docs/02 §2–4). Ghost picks (eliminated players) run

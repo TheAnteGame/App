@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { BETA_LEAGUE_ID, SEASON } from "@/lib/constants";
 import { autoPick } from "@/lib/engine/autopick";
 import { autoWager } from "@/lib/engine/wager";
-import { settlePick, isEliminated, ledgerKeys } from "@/lib/engine/settle";
+import { settlePick } from "@/lib/engine/settle";
 import { eligibilityFor, toGameLite } from "@/lib/picks";
 
 /**
@@ -120,89 +120,64 @@ export async function settleGamesJob() {
     .eq("state", "revealed");
 
   for (const week of revealedWeeks ?? []) {
-    const [{ data: picks }, { data: games }] = await Promise.all([
-      db
-        .from("picks")
-        .select("*")
-        .eq("league_id", BETA_LEAGUE_ID)
-        .eq("season", SEASON)
-        .eq("week", week.week)
-        .eq("state", "locked"),
-      db.from("nfl_games").select("*").eq("season", SEASON).eq("week", week.week),
-    ]);
+    const { data: picks } = await db
+      .from("picks")
+      .select("*")
+      .eq("league_id", BETA_LEAGUE_ID)
+      .eq("season", SEASON)
+      .eq("week", week.week)
+      .eq("state", "locked");
+
+    // Fetch games by the picks' game_ids (NOT by week number) so a postponed
+    // game that ESPN moved to another week can't silently vanish from lookup.
+    const gameIds = [...new Set((picks ?? []).map((p) => p.game_id))];
+    const { data: games } = gameIds.length
+      ? await db.from("nfl_games").select("*").in("id", gameIds)
+      : { data: [] };
     const gameById = new Map((games ?? []).map((g) => [g.id, toGameLite(g)]));
 
     for (const pick of picks ?? []) {
       const game = gameById.get(pick.game_id);
-      if (!game) continue;
+      if (!game) {
+        out.errors.push(`pick ${pick.id}: game ${pick.game_id} missing — admin review`);
+        continue;
+      }
+      if (game.week !== week.week) {
+        out.errors.push(
+          `pick ${pick.id}: game moved from week ${week.week} to ${game.week} — admin review (docs/02 §6)`,
+        );
+        continue;
+      }
       const outcome = settlePick(pick.team_id, pick.wager, game);
       if (!outcome) continue; // awaiting official result — never guess
 
-      if (pick.is_ghost) {
-        await db
-          .from("picks")
-          .update({ state: "settled", result: outcome.result, settled_at: new Date().toISOString() })
-          .eq("id", pick.id)
-          .eq("state", "locked");
+      // Atomic settlement: ledger + bankroll + elimination + ghosting of
+      // future picks happen in ONE Postgres transaction (settle_pick_atomic,
+      // migration 0003). A pick can never be marked settled without its
+      // ledger row, and errors leave it locked for the next run / admin.
+      const { data: rpcResult, error: rpcErr } = await db.rpc("settle_pick_atomic", {
+        p_pick_id: pick.id,
+        p_result: outcome.result,
+        p_delta: outcome.delta,
+        p_reason: `Week ${week.week} ${outcome.result}`,
+      });
+      if (rpcErr) {
+        out.errors.push(`pick ${pick.id}: rpc failed: ${rpcErr.message}`);
+        continue;
+      }
+      const status = String(rpcResult ?? "");
+      if (status.startsWith("err:")) {
+        out.errors.push(`pick ${pick.id}: ${status}`);
+        continue;
+      }
+      if (status.startsWith("ok:")) {
         out.settled++;
-        continue;
-      }
-
-      const { data: member } = await db
-        .from("league_members")
-        .select("bankroll")
-        .eq("league_id", BETA_LEAGUE_ID)
-        .eq("user_id", pick.user_id)
-        .maybeSingle();
-      if (member == null) {
-        out.errors.push(`no membership for user ${pick.user_id}`);
-        continue;
-      }
-      const before = member.bankroll;
-      const after = before + outcome.delta;
-
-      // Idempotent ledger write — the ONLY gate for moving cached bankroll.
-      const { data: inserted } = await db
-        .from("ledger")
-        .upsert(
-          {
-            league_id: BETA_LEAGUE_ID,
-            user_id: pick.user_id,
-            pick_id: pick.id,
-            entry_type:
-              outcome.result === "win"
-                ? "wager_win"
-                : outcome.result === "loss"
-                  ? "wager_loss"
-                  : "push",
-            amount: outcome.delta,
-            bankroll_before: before,
-            bankroll_after: after,
-            idempotency_key: ledgerKeys.settlement(pick.id),
-            reason: `Week ${week.week} ${outcome.result}`,
-          },
-          { onConflict: "idempotency_key", ignoreDuplicates: true },
-        )
-        .select();
-
-      if (inserted && inserted.length > 0) {
-        await db
-          .from("league_members")
-          .update({ bankroll: after })
-          .eq("league_id", BETA_LEAGUE_ID)
-          .eq("user_id", pick.user_id);
-        if (isEliminated(after)) {
-          await db.from("users").update({ status: "eliminated" }).eq("id", pick.user_id);
-          out.eliminated++;
+        if (!pick.is_ghost && pick.wager >= 0 && outcome.delta < 0) {
+          // cheap post-check for elimination count (exact status comes from DB)
+          const { data: u } = await db.from("users").select("status").eq("id", pick.user_id).single();
+          if (u?.status === "eliminated") out.eliminated++;
         }
       }
-
-      await db
-        .from("picks")
-        .update({ state: "settled", result: outcome.result, settled_at: new Date().toISOString() })
-        .eq("id", pick.id)
-        .eq("state", "locked");
-      out.settled++;
     }
 
     // Week fully settled? Snapshot standings and close it out.
@@ -226,7 +201,8 @@ export async function settleGamesJob() {
           .eq("league_id", BETA_LEAGUE_ID)
           .eq("season", SEASON)
           .eq("is_ghost", false)
-          .eq("state", "settled");
+          .eq("state", "settled")
+          .lte("week", week.week); // snapshot W-L must not include later weeks
         const wl = new Map<string, { w: number; l: number }>();
         for (const r of results ?? []) {
           const rec = wl.get(r.user_id) ?? { w: 0, l: 0 };
