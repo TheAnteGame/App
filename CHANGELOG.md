@@ -6,6 +6,11 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-12 — Session 1, part 4 (repo relocation + everything live)
+
+- [infra] Per Robert's directive, production moved fully onto `TheAnteGame/App`: disconnected the Vercel project from `rztoler/the-ante`, removed the `rztoler` login connection from Vercel, Robert authorized the Vercel↔TheAnteGame GitHub link, project reconnected to `TheAnteGame/App`, deploy verified. `rztoler` is out of the pipeline entirely; its stray repo is deletable.
+- [deploy] Landing glow-up + Phase 1 confirmed LIVE at https://the-ante-inky.vercel.app (email OTP box rendering, animated backdrop, Kanit headline).
+
 ## 2026-08-12 — Session 1, part 3 (Phase 1: the game engine)
 
 - [engine] Pure engine library `src/lib/engine/` — eligibility (usage <2 / no-consecutive / bye), wager validation (100–1,000, ≤ stack, sub-100 forced all-in, overtime floor 1), seeded deterministic AUTO-ANTE (FNV-1a → mulberry32 per user+season+week), settlement (finals only; tie=push consuming usage; canceled=void; never settles in-progress/postponed), elimination at 0, ledger idempotency keys. **26 unit tests.**

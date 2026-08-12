@@ -13,14 +13,15 @@
 - **Repo (SOURCE OF TRUTH):** `rztoler/the-ante` (private) — Vercel-created clone of `TheAnteGame/App`; every push to `main` auto-deploys. **`TheAnteGame/App` is now STALE** — do not push there.
 - **Vercel:** account `roberttoler-8396` ("Toler" hobby team), project **`the-ante`**, production domain **https://the-ante-inky.vercel.app** (deployment protection disabled). The old empty `ante` project on the same account can be deleted.
 - **Database:** schema + seeds applied (Robert, via SQL Editor); **272 games / 18 weeks ingested from ESPN, zero errors**; all env vars (7) set by Robert; Clerk keys live.
-- **REPO POLICY (Robert's directive, Aug 12): everything lives on the `TheAnteGame` GitHub. `rztoler` (his separate personal GitHub) is off-limits — no code, no repos, nothing.** Status of the fix: `TheAnteGame/App` is fully current (all Phase 1 code pushed); the Vercel project `the-ante` has been disconnected from `rztoler/the-ante`; the `rztoler` login connection has been removed from the Vercel account. Remaining: authorize Vercel↔TheAnteGame (a GitHub popup — one click), then connect `TheAnteGame/App` to the project and redeploy. The stale `rztoler/the-ante` repo can be deleted by Robert whenever.
+- **REPO POLICY (Robert's directive, Aug 12): everything lives on the `TheAnteGame` GitHub. `rztoler` (his separate personal GitHub) is off-limits — no code, no repos, nothing.**
+- **PIPELINE (final, working since Aug 12 evening):** `TheAnteGame/App@main` → Vercel project `the-ante` (account roberttoler-8396) → **https://the-ante-inky.vercel.app**. The Vercel account's GitHub login connection is now `TheAnteGame` (Robert authorized it). The stored `TheAnteGame` PAT pushes via `scripts/push-via-api.mjs` — sessions are fully autonomous for shipping. Landing glow-up + all of Phase 1 verified LIVE.
+- **Cleanup (Robert, whenever):** delete the stale `rztoler/the-ante` repo on GitHub; delete the empty old `ante` project on Vercel. Neither affects anything.
 - **Blockers / Robert to-dos:**
-  1. **GitHub PAT for `rztoler`** — Phase 1 code is committed locally in the cloud workspace but CANNOT DEPLOY without it (fine-grained, repo `rztoler/the-ante`, contents read/write).
-  2. After Robert's first real login on the live site, make him commissioner — run in Supabase SQL Editor:
+  1. After Robert's first real login on the live site, make him commissioner — run in Supabase SQL Editor:
      `update users set role = 'admin', status = 'active' where email = 'robert.toler@growthpropulsion.com';`
-  3. **Vercel Hobby cron limit:** crons run at most daily. Daily backstops are configured; in-season the lock (5-min) and settle (10-min) cadence needs either Vercel Pro or a free external pinger (cron-job.org) hitting the job URLs with `?secret=`. Decide by Phase 3.
-  4. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
-  5. Domain purchase + Resend still pending (no rush until Phase 3).
+  2. **Vercel Hobby cron limit:** crons run at most daily. Daily backstops are configured; in-season the lock (5-min) and settle (10-min) cadence needs either Vercel Pro or a free external pinger (cron-job.org) hitting the job URLs with `?secret=`. Decide by Phase 3.
+  3. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
+  4. Domain purchase + Resend still pending (no rush until Phase 3).
 
 ---
 

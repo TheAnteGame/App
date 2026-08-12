@@ -43,7 +43,7 @@ Dark FanDuel-style theme, mobile-first, **poker-gold accent** (from the chip-rin
 
 ## Accounts & environments
 
-- **GitHub:** **`rztoler/the-ante`** (private) is the source of truth; Vercel auto-deploys `main`. (`TheAnteGame/App` is a stale early copy — never push there. Robert's GitHub accounts: `rztoler` personal, `TheAnteGame` project-branded.)
+- **GitHub:** **`TheAnteGame/App`** is the ONLY repo — source of truth, Vercel auto-deploys `main` (push via `scripts/push-via-api.mjs` with the TheAnteGame PAT). Robert's separate personal GitHub (`rztoler`) is OFF-LIMITS: no code, no repos, never touch it.
 - **Vercel:** account `roberttoler-8396`, project `the-ante`, production **https://the-ante-inky.vercel.app**, deployment protection off.
 - **Supabase:** project ref `rhwkgsazsdtlufmzlarf` (URL `https://rhwkgsazsdtlufmzlarf.supabase.co`). Migrations live in `supabase/migrations/`; schema changes are applied by pasting SQL into the Supabase SQL Editor (sandbox can't reach the DB directly — see ROADMAP sandbox notes).
 - **Clerk:** email OTP only, no passwords. Keys live in Vercel env since Aug 12.
