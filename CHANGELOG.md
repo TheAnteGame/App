@@ -6,6 +6,14 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-12 — Session 1, part 5 (first live users + polish)
+
+- [auth-fix] Clerk dashboard config corrected (root causes of "code won't take"): **username requirement OFF** (was blocking every sign-up from finalizing), phone sign-up/sign-in/require OFF (Pro SMS features, unused by design — phone lives in our DB). Email is the only Clerk requirement now. Verified end-to-end with a `+clerk_test` signup.
+- [auth-fix] EmailGate hardened: nested Clerk error codes handled, real error messages surfaced, finalize errors checked, hard redirect after session start.
+- [admin] Pending queue: **Decline** button (sets status=removed, audit-logged) and **Email** button (mailto). Ante-status column relabeled "no ante yet" with an explanatory header (was misread as approval state).
+- [dashboard] Gold "Commissioner" link in the menu for admins.
+- [ops] Robert is live as commissioner (growthpropulsion email); two test accounts exist (ante.tester+clerk_test, rztoler gmail) — decline/ignore at will.
+
 ## 2026-08-12 — Session 1, part 4 (repo relocation + everything live)
 
 - [infra] Per Robert's directive, production moved fully onto `TheAnteGame/App`: disconnected the Vercel project from `rztoler/the-ante`, removed the `rztoler` login connection from Vercel, Robert authorized the Vercel↔TheAnteGame GitHub link, project reconnected to `TheAnteGame/App`, deploy verified. `rztoler` is out of the pipeline entirely; its stray repo is deletable.
