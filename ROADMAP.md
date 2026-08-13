@@ -8,7 +8,8 @@
 
 ## Current status
 
-- **Phase:** 1.5 FULLY complete incl. all review follow-ups (Session 2, Aug 12). Next: Phase 2 — Dashboard & social (design-led: Robert wants the UX "easy but jawdropping" — use the design workflow for Phase 2 UI).
+- **Phase:** 2 COMPLETE incl. live exit-criteria walkthrough (Session 2, Aug 13 — 11 days ahead of the plan's Aug 24–30 window). Next: Phase 3 — emails, mobile polish, legal copy, Playwright happy-path.
+- **Live seats:** rzt… ("Bobby T."), mar… ("Mike T."), commish (self-seated Aug 13), + test seat "Vinnie Shark" (vinnie.shark+clerk_test — wipe at Phase 4).
 - **Session count:** 2
 - **Repo (SOURCE OF TRUTH): `TheAnteGame/App@main`** → Vercel auto-deploys → https://the-ante-inky.vercel.app
 - **Vercel:** account `roberttoler-8396`, project `the-ante`, deployment protection off.
@@ -78,7 +79,7 @@
 - [x] Table Talk: Realtime chat via Clerk JWT (poll fallback until the Supabase third-party-auth dashboard step is done) + admin mute/delete
 - [x] NFL schedule view, week history, fun stats (weekly superlatives + season records; engines tested)
 - [x] Admin panel: approvals, submission status (names only pre-reveal), lock override, results correction w/ audit trail (post-settlement corrections deliberately blocked+logged in beta), auto-pick review, chat moderation, CRM list, one-click job runs
-- [ ] **Exit criteria to verify live: two browsers feel like a live league; Robert runs a week from /admin without touching the DB.** (Everything's built + screenshot-reviewed; needs the live two-player pass with Robert. Realtime chat needs his Supabase dashboard step — Current status #5.)
+- [x] **Exit criteria PASSED (Aug 13 live walkthrough):** two-browser league test (Claude drove test player "Vinnie Shark" through signup → approval → Accept gate → ante → chat while Robert ran his own seats + /admin), pre-reveal privacy verified, mute verified both sides, commissioner self-seat fix shipped mid-walkthrough. Job-run-from-admin verified as safe no-ops (the full lock→settle cycle was already proven live in the simulated week).
 - Deferred inside Phase 2: Bankroll OT matchup management UI (December, per post-launch plan).
 
 ### Phase 3 — Emails, polish, hardening (Aug 31–Sep 5)
@@ -127,7 +128,9 @@
 
 **Third leg of the session (Aug 13): Phase 2 BUILT.** Full dashboard (reveal board flip, sortable Table, team inventory, notices ticker, Table Talk, schedule/history/fun stats, sticky section nav) + full commissioner console (one-click job runs, lock override, result correction w/ audit, AUTO-ANTE review, chat moderation, CRM, audit viewer). Two new tested engines (notices, stats — 53 tests total). `/preview` mock-data route + Playwright screenshot QA (desktop+mobile, pre/post-reveal, reviewed in-session). Build green, lint 0 errors.
 
-**Stopping point / next actions:** Phase 2 exit-criteria verification with Robert live: (1) he pastes nothing — everything runs from /admin; (2) two-browser league feel test; (3) Supabase dashboard → Third-Party Auth → Clerk, then confirm Realtime chat fires instantly (poll fallback covers until then). Then Phase 3 (emails, mobile polish pass, legal copy, Playwright happy-path). Robert to-dos: re-ante Week 1, NEXT_PUBLIC_APP_URL, domain purchase.
+**Fourth leg (Aug 13): live walkthrough — Phase 2 exit criteria PASSED.** Full funnel driven by Claude via Chrome as test player "Vinnie Shark" while Robert commissioned: signup/OTP/approval/Accept/ante/chat/mute all verified on prod. One real bug found+fixed+deployed mid-walkthrough (commissioner self-seat). Gap queued for Phase 3: no remove-ACTIVE-player admin control.
+
+**Stopping point / next actions:** **Phase 3** — Resend emails (needs domain), mobile pass, empty/edge states, legal copy, Playwright happy-path, reconcile run; plus the remove-active-player control. Robert to-dos: Supabase → Third-Party Auth → Clerk if not yet done (chat is on 20s polling until then), domain purchase, NEXT_PUBLIC_APP_URL, stale-repo cleanup. Week 1 antes: rzt seat is in; commish + mar can ante whenever.
 
 **Credentials note:** session env has no TheAnteGame PAT and no CRON_SECRET — PAT must be provided in-chat per session for pushes and run-job dispatch (or Robert clicks Run workflow in the Actions UI; CRON_SECRET lives in Vercel env + Actions secrets).
 

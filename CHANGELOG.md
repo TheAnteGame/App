@@ -6,6 +6,14 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-13 — Session 2, part 4 (live walkthrough — Phase 2 exit criteria PASSED)
+
+- [qa] **Two-browser live walkthrough with Robert:** Claude drove a test player ("Vinnie Shark", +clerk_test email) through the entire funnel in a real Chrome tab — email OTP → Take a seat → pending → commissioner approval → Accept gate → dashboard → 350 ante on SEA (Win→1350/Lose→650 shown, Table flipped to ✓ anted, SEA pip lit) → Table Talk post — while Robert ran his own browser + /admin. Ticker, Table status, pre-reveal privacy, and chat polling all verified live.
+- [qa] Mute verified end-to-end: muted player sees the "Muted by the commish" banner and the server refuses posts (first attempt was an admin misclick, second stuck).
+- [admin-fix] **Commissioner self-seat**: the seeded admin account never went through approval and had no league seat, so chat/antes were (correctly) refused. New audit-logged "Take your own seat at the table" button in /admin (idempotent membership + starting-balance ledger). Verified by Robert — commish chat now works.
+- [note] Vinnie Shark stays as a live test seat until the Phase 4 pre-launch wipe.
+- [gap noted] No admin control yet to remove an ACTIVE player (spec §11 "approve/remove") — decline covers pending only. Queued for Phase 3.
+
 ## 2026-08-13 — Session 2, part 3 (Phase 2: the full live-league dashboard + commissioner console)
 
 - [engine] `notices.ts` — deterministic scenario-callout engine (docs/01 ticker): pre-reveal ante counts/stragglers/lock urgency (names only, never picks), post-reveal ALL-IN = elimination-risk callouts, lead-change scenarios, AUTO-ANTE, shared fates, biggest swing, per-final result calls, settled-week wraps. 5 tests incl. a privacy assertion.
