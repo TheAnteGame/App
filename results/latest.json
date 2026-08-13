@@ -1,11 +1,18 @@
 {
-  "run_id": 31654981347,
-  "job": "lock-week",
-  "params": "",
+  "run_id": 31655177345,
+  "job": "settle-games",
+  "params": "sync=0",
   "http_status": "200",
   "response": {
-    "weeksLocked": 0,
-    "autoPicks": 0,
+    "sync": {
+      "gamesUpserted": 0,
+      "errors": [
+        "sync skipped (?sync=0)"
+      ]
+    },
+    "settled": 5,
+    "eliminated": 1,
+    "weeksSettled": 1,
     "errors": []
   }
 }
