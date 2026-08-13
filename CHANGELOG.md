@@ -6,6 +6,12 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-13 — Session 2, part 2 (simulated week PASSED — Phase 1 exit criteria complete)
+
+- [ops] **Full simulated week against the live DB, end to end:** SIM-1 seeded 3 test players + backdated the Week 1 lock; lock-week dealt 3 seeded AUTO-ANTES (2 real seats + sim.lazy), locked 5 picks, revealed — then re-ran as a perfect no-op (live idempotency proof). SIM-3 faked 16 official finals; settle-games (`sync=0`) settled all 5 (sim.win +300 → 1300; sim.bust all-in → 0, ELIMINATED; ghost/auto paths exercised), snapshotted standings, closed the week `settled` — then re-ran with zero drift. Reconcile clean at every step. SIM-4 + `sync-schedule?week=1` restored prod exactly (2 seats @ 1000, Week 1 upcoming, real Sep 9 lock). Migration 0005 was applied to prod first.
+- [infra] `run-job` workflow now publishes each job response (emails redacted) to `results/latest.json` on the **`run-results`** branch — the observation channel for sandboxed sessions (Actions logs + vercel.app are outside the sandbox egress allowlist).
+- [ops] Sim first attempt: all three SQL steps were pasted back-to-back (no jobs between), wiping the pre-existing real Week 1 pick and leaving fake finals live; recovered fully (pinger paused before firing, ESPN re-sync, reconcile clean). Runbook cadence now explicit in ROADMAP + `scripts/sim/README.md`.
+
 ## 2026-08-12 — Session 2 (pre-Phase-2 hardening: remaining review findings)
 
 - [db] **Migration 0005** (`0005_phase2_prep.sql`): pick-submit race guard — a `picks_guard_mutation` BEFORE trigger rejects any team/wager mutation once the week has left `upcoming`, closing the submit-vs-early-reveal race at the DB layer (with a `set local ante.bypass_pick_guard` escape hatch for future audit-logged admin corrections).

@@ -19,7 +19,7 @@
 - **DB state: migrations 0001–0004 all applied to prod (Aug 12).** Atomic settlement + Postgres-level rule enforcement are LIVE.
 - ~~OPEN RULING: Bankroll Overtime~~ **RESOLVED (Robert, Aug 12): keep the docs/02 §8 playoff tiebreaker as written** (decision #16). OT code stays dormant until January.
 - **Blockers / Robert to-dos:**
-  1. **Paste migration 0005 into the Supabase SQL Editor** (`PASTE-INTO-SUPABASE-0005.sql` in the local folder / `supabase/migrations/0005_phase2_prep.sql`) — race guard + enum cleanup + Table Talk RLS.
+  1. ~~Paste migration 0005~~ DONE (Aug 12). ~~Simulated week~~ DONE (Aug 13). **Week 1 pick note: the sim wiped the one pre-existing real Week 1 pick — whoever anted (rzt/mar) should re-ante.**
   2. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
   3. Domain purchase + Resend still pending (no rush until Phase 3).
   4. Optional cleanup: test accounts (ante.tester+clerk_test, rztoler gmail) in pending queue / Clerk users; delete stale `rztoler/the-ante` repo; delete empty old `ante` Vercel project.
@@ -56,7 +56,7 @@
 - [x] Early reveal the moment all actives are in (checked on every submit)
 - [x] Settlement (`/api/jobs/settle-games`): finals only, idempotent ledger writes, push/void, elimination → ghost, standings snapshots
 - [x] Engine unit tests: 26 passing (eligibility, wagers, seeded auto-pick determinism, settlement, elimination)
-- [ ] **Exit criterion left: full simulated week against the live DB** (needs deploy; then run lock-week + settle-games with test data)
+- [x] **Exit criterion met: full simulated week against the live DB (Aug 13).** 3 test players + 2 real seats: lock-week dealt 3 AUTO-ANTES and revealed; fake finals settled 5 picks (win +300 → 1300; all-in loss → 0 → BUSTED + eliminated); week closed `settled` with standings snapshot; both lock and settle re-ran as perfect no-ops (live idempotency proof); reconcile clean at every step; cleanup restored prod exactly (harness: `scripts/sim/`)
 - [ ] Dashboard v1 shipped with Phase 1: header w/ rank+stack, weekly Ante card with countdown, The Table (basic). Full Phase 2 dashboard still to come.
 
 ### Phase 1.5 — Hardening (from the Aug 12 end-of-phase code review)
@@ -117,9 +117,16 @@
 - Robert's local folder: applied PASTE-*.sql files moved to `_to_delete/`.
 - Robert's question answered: no code on his machine by design (GitHub-centric flow from Session 1); repo is public, clone anytime.
 
-**Stopping point / next actions:** see Current status blockers — Robert pastes migration 0005; then run the **full simulated week** against the live DB (sim scripts in the local folder: setup → lock → finals → settle?sync=0 → reconcile → cleanup). After that: Phase 2, design-led ("easy but jawdropping" per Robert — bring the design workflow into the dashboard build).
+**Second half of session (Aug 12 evening → Aug 13): migration applied + simulated week PASSED.**
+- Robert pasted migration 0005; PAT provided in-chat; all work pushed to `TheAnteGame/App@main` and auto-deployed.
+- New results channel for sandboxed sessions: the `run-job` workflow publishes each job response (emails redacted) to `results/latest.json` on the **`run-results` branch** — sandbox reads it via the GitHub contents API (Actions log downloads and the vercel.app host are both outside the sandbox egress allowlist; WebFetch is proxy-blocked on the log blobs too). This is THE way future sessions observe prod.
+- Sim mishap, fully recovered: Robert initially pasted all three sim files back-to-back (no jobs between), which wiped the one pre-existing real Week 1 pick and left fake finals + a backdated lock live; pinger was disabled in time (GitHub's cron throttling meant it never fired), sync-schedule restored Week 1, reconcile confirmed clean. Lesson encoded here: sim steps are paste → STOP → job → paste.
+- **Simulated week, run properly, PASSED end to end:** lock (3 auto-antes, reveal, re-run no-op) → fake finals → settle `sync=0` (5 settled: +300 win → 1300; all-in bust → 0, eliminated; snapshot; week settled; re-run zero drift) → cleanup → ESPN restore → final reconcile clean. Phase 1 exit criteria are now ALL met.
+- Pinger re-enabled after the sim.
 
-**Credentials note:** session env has no TheAnteGame PAT and no CRON_SECRET — PAT must be provided in-chat per session for pushes; job triggering works via the run-job workflow once the PAT is available (or Robert clicks Run workflow in the Actions UI).
+**Stopping point / next actions:** Phase 2 — Dashboard & social, design-led ("easy but jawdropping" per Robert — bring the design workflow into the dashboard build). Robert to-dos in Current status (re-ante Week 1, NEXT_PUBLIC_APP_URL, domain, Clerk third-party auth in Supabase before Table Talk).
+
+**Credentials note:** session env has no TheAnteGame PAT and no CRON_SECRET — PAT must be provided in-chat per session for pushes and run-job dispatch (or Robert clicks Run workflow in the Actions UI; CRON_SECRET lives in Vercel env + Actions secrets).
 
 ### Session 1 — Aug 12, 2026
 
