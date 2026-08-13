@@ -1,5 +1,5 @@
 {
-  "run_id": 31654753583,
+  "run_id": 31654930886,
   "job": "reconcile",
   "params": "",
   "http_status": "200",
@@ -20,13 +20,34 @@
         "cached": 1000,
         "fromLedger": 1000,
         "ok": true
+      },
+      {
+        "email": "sim…",
+        "status": "active",
+        "cached": 1000,
+        "fromLedger": 1000,
+        "ok": true
+      },
+      {
+        "email": "sim…",
+        "status": "active",
+        "cached": 1000,
+        "fromLedger": 1000,
+        "ok": true
+      },
+      {
+        "email": "sim…",
+        "status": "active",
+        "cached": 1000,
+        "fromLedger": 1000,
+        "ok": true
       }
     ],
     "weeks": [
       {
         "week": 1,
         "state": "upcoming",
-        "lock_at": "2026-09-10T00:15:00+00:00",
+        "lock_at": "2026-08-13T00:33:52.437405+00:00",
         "revealed_at": null
       },
       {
@@ -132,6 +153,10 @@
         "revealed_at": null
       }
     ],
-    "pickCounts": {}
+    "pickCounts": {
+      "1": {
+        "submitted": 2
+      }
+    }
   }
 }
