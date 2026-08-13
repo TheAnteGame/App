@@ -1,5 +1,5 @@
 {
-  "run_id": 31650933852,
+  "run_id": 31654673576,
   "job": "reconcile",
   "params": "",
   "http_status": "200",
@@ -26,7 +26,7 @@
       {
         "week": 1,
         "state": "upcoming",
-        "lock_at": "2026-09-10T00:15:00+00:00",
+        "lock_at": "2026-08-13T00:28:13.011932+00:00",
         "revealed_at": null
       },
       {
@@ -132,10 +132,6 @@
         "revealed_at": null
       }
     ],
-    "pickCounts": {
-      "1": {
-        "submitted": 1
-      }
-    }
+    "pickCounts": {}
   }
 }
