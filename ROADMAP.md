@@ -69,16 +69,17 @@
 - [x] LOW: approve guards pending-only; settle fetches games by game_id (week-move → admin flag); snapshot W-L bounded; constants deduped
 - [x] Remaining review findings — ALL CLOSED in Session 2 (Aug 12): pick-submit race guard (DB trigger, migration 0005); `?secret=` dropped + timing-safe compare (manual runs via `run-job` Actions workflow); Realtime auth strategy decided + RLS shipped (decision #17); job-layer double-run drift tests (injectable data layer, 10 new tests); dead states shrunk out of the enums (decision #18)
 
-### Phase 2 — Dashboard & social (Aug 24–30)
+### Phase 2 — Dashboard & social (planned Aug 24–30; BUILT Aug 13, Session 2 — ahead of schedule)
 
-- [ ] Weekly Ante card: countdown, pick flow, Ante Up, potential outcomes, post-reveal board flip
-- [ ] The Table: leaderboard + sortable stat views, BUSTED ghosts memorialized
-- [ ] Team inventory: usage pips, disabled states, team schedule drill-in
-- [ ] Notices ticker: deterministic scenario callouts
-- [ ] Table Talk: Supabase Realtime chat + admin mute
-- [ ] NFL schedule view, week history, fun stats (weekly superlatives, then season records)
-- [ ] Admin panel: approvals, submission status (names only pre-reveal), lock override, results correction w/ audit trail, auto-pick review, chat moderation, CRM list
-- **Exit criteria:** two browsers feel like a live league; admin runs a week without touching the DB.
+- [x] Weekly Ante card: countdown, pick flow, Ante Up, potential outcomes, post-reveal board flip (staggered 3D flip, "Antes are in." banner, live game status, result badges)
+- [x] The Table: sortable stat views (Stack/W-L/Big win/Risk), rank movement arrows, anted/waiting pre-reveal, BUSTED ghosts memorialized on "the rail"
+- [x] Team inventory: usage pips, disabled states (bye/used-max/no-back-to-back), team schedule drill-in with the player's antes flagged
+- [x] Notices ticker: deterministic scenario callouts (engine + 5 tests, incl. privacy assertion)
+- [x] Table Talk: Realtime chat via Clerk JWT (poll fallback until the Supabase third-party-auth dashboard step is done) + admin mute/delete
+- [x] NFL schedule view, week history, fun stats (weekly superlatives + season records; engines tested)
+- [x] Admin panel: approvals, submission status (names only pre-reveal), lock override, results correction w/ audit trail (post-settlement corrections deliberately blocked+logged in beta), auto-pick review, chat moderation, CRM list, one-click job runs
+- [ ] **Exit criteria to verify live: two browsers feel like a live league; Robert runs a week from /admin without touching the DB.** (Everything's built + screenshot-reviewed; needs the live two-player pass with Robert. Realtime chat needs his Supabase dashboard step — Current status #5.)
+- Deferred inside Phase 2: Bankroll OT matchup management UI (December, per post-launch plan).
 
 ### Phase 3 — Emails, polish, hardening (Aug 31–Sep 5)
 
@@ -124,7 +125,9 @@
 - **Simulated week, run properly, PASSED end to end:** lock (3 auto-antes, reveal, re-run no-op) → fake finals → settle `sync=0` (5 settled: +300 win → 1300; all-in bust → 0, eliminated; snapshot; week settled; re-run zero drift) → cleanup → ESPN restore → final reconcile clean. Phase 1 exit criteria are now ALL met.
 - Pinger re-enabled after the sim.
 
-**Stopping point / next actions:** Phase 2 — Dashboard & social, design-led ("easy but jawdropping" per Robert — bring the design workflow into the dashboard build). Robert to-dos in Current status (re-ante Week 1, NEXT_PUBLIC_APP_URL, domain, Clerk third-party auth in Supabase before Table Talk).
+**Third leg of the session (Aug 13): Phase 2 BUILT.** Full dashboard (reveal board flip, sortable Table, team inventory, notices ticker, Table Talk, schedule/history/fun stats, sticky section nav) + full commissioner console (one-click job runs, lock override, result correction w/ audit, AUTO-ANTE review, chat moderation, CRM, audit viewer). Two new tested engines (notices, stats — 53 tests total). `/preview` mock-data route + Playwright screenshot QA (desktop+mobile, pre/post-reveal, reviewed in-session). Build green, lint 0 errors.
+
+**Stopping point / next actions:** Phase 2 exit-criteria verification with Robert live: (1) he pastes nothing — everything runs from /admin; (2) two-browser league feel test; (3) Supabase dashboard → Third-Party Auth → Clerk, then confirm Realtime chat fires instantly (poll fallback covers until then). Then Phase 3 (emails, mobile polish pass, legal copy, Playwright happy-path). Robert to-dos: re-ante Week 1, NEXT_PUBLIC_APP_URL, domain purchase.
 
 **Credentials note:** session env has no TheAnteGame PAT and no CRON_SECRET — PAT must be provided in-chat per session for pushes and run-job dispatch (or Robert clicks Run workflow in the Actions UI; CRON_SECRET lives in Vercel env + Actions secrets).
 

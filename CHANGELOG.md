@@ -6,6 +6,21 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-13 — Session 2, part 3 (Phase 2: the full live-league dashboard + commissioner console)
+
+- [engine] `notices.ts` — deterministic scenario-callout engine (docs/01 ticker): pre-reveal ante counts/stragglers/lock urgency (names only, never picks), post-reveal ALL-IN = elimination-risk callouts, lead-change scenarios, AUTO-ANTE, shared fates, biggest swing, per-final result calls, settled-week wraps. 5 tests incl. a privacy assertion.
+- [engine] `stats.ts` — fun-stats engine: weekly superlatives (biggest win, toughest beat, boldest ante, house-guests) + season records (most wins, riskiest avg ante, high-water stack, hot hand w/ push-preserving streaks); ghosts excluded. 4 tests. 53 total.
+- [dashboard] **Reveal board flip** — the money spot flips from the ante form to the full board at reveal (staggered 3D card-flip, "Antes are in." banner): player, team, wager, W/L projections, live game status with pulse dot, result badges; ghosts dimmed in their own rail.
+- [dashboard] **The Table** rebuilt: sortable views (Stack / W-L / Big win / Risk), rank-movement arrows vs last snapshot, pre-reveal anted/waiting status, BUSTED memorial rail.
+- [dashboard] **Team inventory**: 32-team grid with usage pips + disabled states (bye / used-max strikethrough / no-back-to-back), tap-through to the team's full season schedule with the player's antes flagged.
+- [dashboard] **Notices ticker**: CSS marquee (seamless dup-track, hover-pause, reduced-motion static).
+- [dashboard] **Table Talk**: chat bubbles, server-action posting (mute + membership enforced server-side), Supabase Realtime refresh via Clerk JWT with a 20s poll fallback, muted-by-the-commish state.
+- [dashboard] Below the fold: NFL schedule (18-week tabs, viewer-local times, live dots, winner highlighting), week history (per settled week: picks/results/deltas + post-week standings), fun-stats panels. Sticky section nav.
+- [admin] **Commissioner console** rebuilt for the run-a-week-without-SQL exit criterion: one-click job runs (Lock & reveal / Refresh+settle / Settle-as-entered), lock override (ET input, upcoming weeks only, reason required), result correction with audit trail (blocked with a logged attempt once picks are settled — reversal is deliberately manual in beta), AUTO-ANTE review, Table Talk moderation (soft delete + mute/unmute), CRM table (contact, status, stack, ante status, joined, mute, payments stub), audit log viewer. All mutations audit-logged.
+- [ui] Phase-2 CSS primitives: `.panel`, ticker marquee, card-flip/rise-in animations, usage pips, live-pulse dot, sticky section nav — all honoring prefers-reduced-motion.
+- [ui] AnteCard: setState-in-effect lint error fixed (state-adjust-during-render pattern); lint now 0 errors.
+- [qa] `/preview` route (404s unless ALLOW_PREVIEW=1 — never set in prod): mock-data render of every Phase 2 surface in pre/post-reveal states; `scripts/screenshot-preview.mjs` captures desktop+mobile via Playwright. Screenshots reviewed this session.
+
 ## 2026-08-13 — Session 2, part 2 (simulated week PASSED — Phase 1 exit criteria complete)
 
 - [ops] **Full simulated week against the live DB, end to end:** SIM-1 seeded 3 test players + backdated the Week 1 lock; lock-week dealt 3 seeded AUTO-ANTES (2 real seats + sim.lazy), locked 5 picks, revealed — then re-ran as a perfect no-op (live idempotency proof). SIM-3 faked 16 official finals; settle-games (`sync=0`) settled all 5 (sim.win +300 → 1300; sim.bust all-in → 0, ELIMINATED; ghost/auto paths exercised), snapshotted standings, closed the week `settled` — then re-ran with zero drift. Reconcile clean at every step. SIM-4 + `sync-schedule?week=1` restored prod exactly (2 seats @ 1000, Week 1 upcoming, real Sep 9 lock). Migration 0005 was applied to prod first.
