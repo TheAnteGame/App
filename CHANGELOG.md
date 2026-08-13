@@ -6,6 +6,16 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-13 — Session 2, part 5 (Content studio — commissioner-editable copy + custom ticker)
+
+- [db] **Migration 0006** (`0006_site_content.sql`): `site_content` (key→value copy overrides; app defaults when absent, so the table can start empty) + `ticker_items` (commissioner notices: text, brand color, order, live toggle). RLS on, server-only.
+- [admin] **Content studio** (`/admin/content`, linked from the Commissioner header): ticker manager (add/edit/delete/reorder/bench, color per item with swatch preview), grouped label editors for the landing page, both login stages, Take-a-seat, and the pending screen, plus per-group "reset to defaults".
+- [admin] **Rich-text editing** for all three How-to-Play sections (+ their titles, player-rail title, Accept button + fine print): contenteditable WYSIWYG with H2/H3, bold/italic/underline, bulleted + numbered lists, and the four brand color swatches.
+- [security] `src/lib/sanitize.ts` — dependency-free allowlist HTML sanitizer run in the save action: keeps p/h2/h3/strong/em/u/ul/ol/li/br/span, maps b/i/div/font, strips scripts/handlers/links, translates palette colors to `c-gold/c-purple/c-orange/c-teal` classes and drops foreign colors, escapes stray brackets, balances unclosed tags. **10 unit tests (63 total).**
+- [ui] `.rich` render styles (headers in Kanit, lists, brand color classes, dark-surface-readable purple/teal); custom ticker items render ahead of the computed callouts with their chosen color.
+- [app] Landing, EmailGate labels, welcome, pending screen, and How to Play now read from `site_content` with the previously hard-coded copy as defaults; landing headline supports *stars* → gold. Landing became force-dynamic (reads the DB).
+- [qa] Rich editor + rendered output added to the dev-only /preview page; screenshot-reviewed.
+
 ## 2026-08-13 — Session 2, part 4 (live walkthrough — Phase 2 exit criteria PASSED)
 
 - [qa] **Two-browser live walkthrough with Robert:** Claude drove a test player ("Vinnie Shark", +clerk_test email) through the entire funnel in a real Chrome tab — email OTP → Take a seat → pending → commissioner approval → Accept gate → dashboard → 350 ante on SEA (Win→1350/Lose→650 shown, Table flipped to ✓ anted, SEA pip lit) → Table Talk post — while Robert ran his own browser + /admin. Ticker, Table status, pre-reveal privacy, and chat polling all verified live.

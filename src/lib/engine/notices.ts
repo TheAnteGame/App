@@ -6,7 +6,16 @@ import type { GameLite } from "./types";
  * hand-entered. Pure — trivially testable, no I/O.
  */
 
-export type NoticeKind = "info" | "gold" | "win" | "loss";
+export type NoticeKind =
+  | "info"
+  | "gold"
+  | "win"
+  | "loss"
+  // commissioner ticker colors (custom items from /admin/content)
+  | "purple"
+  | "orange"
+  | "teal"
+  | "muted";
 export type Notice = { kind: NoticeKind; text: string };
 
 export type TickerStanding = {

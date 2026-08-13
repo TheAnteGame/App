@@ -292,6 +292,45 @@ body {
   border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
+/* --- Commissioner-edited rich content (.rich) + brand color classes --- */
+.rich h2 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.rich h2:first-child, .rich h3:first-child { margin-top: 0; }
+
+.rich h3 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.rich p { margin-bottom: 0.85rem; color: var(--text-secondary); }
+.rich p:last-child { margin-bottom: 0; }
+.rich strong { color: var(--text-primary); font-weight: 600; }
+.rich em { font-style: italic; }
+.rich ul, .rich ol { margin: 0 0 0.85rem 1.25rem; color: var(--text-secondary); }
+.rich ul { list-style: disc; }
+.rich ol { list-style: decimal; }
+.rich li { margin-bottom: 0.45rem; padding-left: 0.15rem; }
+.rich .c-gold, .rich strong.c-gold { color: var(--gold); }
+.rich .c-purple, .rich strong.c-purple { color: #9d6fd8; } /* readable purple on dark */
+.rich .c-orange, .rich strong.c-orange { color: var(--red-orange); }
+.rich .c-teal, .rich strong.c-teal { color: #2fa593; } /* readable teal on dark */
+.rich .c-muted { color: var(--text-secondary); }
+
 /* Live-status pulse dot */
 .live-dot {
   width: 0.5rem;

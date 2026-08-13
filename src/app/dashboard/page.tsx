@@ -20,6 +20,7 @@ import {
   historyWeeks,
 } from "@/lib/board";
 import { recentMessages } from "@/lib/chat";
+import { getContent, getTickerItems } from "@/lib/content";
 import { eligibilityFor, toGameLite } from "@/lib/picks";
 import { evaluateTeam } from "@/lib/engine/eligibility";
 import { buildNotices } from "@/lib/engine/notices";
@@ -54,6 +55,7 @@ export default async function Dashboard() {
 
   // Pending: only How to Play + status (docs/01 page 2)
   if (user.status === "pending") {
+    const c = await getContent();
     return (
       <main className="relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
         <div className="stage" aria-hidden="true">
@@ -62,11 +64,8 @@ export default async function Dashboard() {
         </div>
         <div className="relative z-10 max-w-md">
           <Image src={BRAND.logoOnDark} alt={BRAND.name} width={400} height={268} className="mx-auto mb-8 h-auto w-44" priority />
-          <h1 className="display mb-3 text-3xl font-bold uppercase">You&apos;re in line</h1>
-          <p className="mb-8 text-ink-muted">
-            The commissioner has your request. You&apos;ll get an email when
-            {" "}{VOCAB.approved.toLowerCase()}.
-          </p>
+          <h1 className="display mb-3 text-3xl font-bold uppercase">{c["pending.title"]}</h1>
+          <p className="mb-8 text-ink-muted">{c["pending.body"]}</p>
           <div className="flex items-center justify-center gap-6 text-sm">
             <Link href="/how-to-play" className="text-gold underline-offset-2 hover:underline">
               Read how to play →
@@ -87,7 +86,7 @@ export default async function Dashboard() {
   const weekNumber = week?.week ?? 1;
   const revealed = Boolean(week?.revealed_at);
 
-  const [gamesRaw, ctx, table, teams, board, subs, schedule, chat, stats, history] =
+  const [gamesRaw, ctx, table, teams, board, subs, schedule, chat, stats, history, customTicker] =
     await Promise.all([
       week ? weekGames(week.week) : Promise.resolve([]),
       memberContext(user.id),
@@ -99,6 +98,7 @@ export default async function Dashboard() {
       recentMessages(),
       statsFeed(),
       historyWeeks(),
+      getTickerItems(),
     ]);
 
   const games = gamesRaw.map(toGameLite);
@@ -131,8 +131,8 @@ export default async function Dashboard() {
     };
   });
 
-  // Notices ticker input (deterministic, server-computed)
-  const notices = buildNotices({
+  // Notices ticker: commissioner items first, then the computed callouts.
+  const computedNotices = buildNotices({
     weekNumber,
     state: (week?.state ?? "upcoming") as "upcoming" | "revealed" | "settled",
     lockAtIso: week?.lock_at ?? new Date().toISOString(),
@@ -157,6 +157,10 @@ export default async function Dashboard() {
     })),
     games,
   });
+  const notices = [
+    ...customTicker.map((t) => ({ kind: t.color, text: t.text }) as const),
+    ...computedNotices,
+  ];
 
   const mine = ctx.picks.find((p) => p.week === weekNumber);
 

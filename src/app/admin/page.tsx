@@ -116,9 +116,14 @@ export default async function Admin() {
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
       <header className="mb-6 flex items-center justify-between">
         <h1 className="display text-3xl font-bold uppercase">Commissioner</h1>
-        <Link href="/dashboard" className="text-sm text-ink-muted hover:text-ink">
-          ← The table
-        </Link>
+        <nav className="flex gap-4 text-sm">
+          <Link href="/admin/content" className="text-gold hover:text-gold-bright">
+            Content studio
+          </Link>
+          <Link href="/dashboard" className="text-ink-muted hover:text-ink">
+            ← The table
+          </Link>
+        </nav>
       </header>
 
       {/* ---- This week: state + one-button ops ---- */}

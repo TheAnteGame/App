@@ -1,9 +1,13 @@
+/* eslint-disable react-hooks/purity -- dev-only mock page (404s in prod);
+   Date.now() feeds fake countdowns and is fine per-request on the server. */
 import { notFound } from "next/navigation";
 import { buildNotices } from "@/lib/engine/notices";
 import { weeklySuperlatives, seasonRecords, type StatsInput } from "@/lib/engine/stats";
 import type { BoardRow } from "@/lib/board";
 import type { GameLite } from "@/lib/engine/types";
 import AnteCard, { type EligibleTeam } from "@/components/AnteCard";
+import RichEditor from "@/components/RichEditor";
+import { CONTENT_DEFAULTS } from "@/lib/content";
 import RevealBoard from "@/components/RevealBoard";
 import NoticesTicker from "@/components/NoticesTicker";
 import TheTable, { type TableRow } from "@/components/TheTable";
@@ -290,6 +294,20 @@ export default async function Preview({
           season={seasonRecords(statsInput)}
           lastSettledWeek={3}
         />
+        {/* Content studio widgets (rich editor + rendered .rich output) */}
+        <section className="panel p-5 sm:p-6">
+          <h2 className="display mb-4 text-xl font-bold uppercase">Rich editor (content studio)</h2>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <RichEditor name="preview" initialHtml={CONTENT_DEFAULTS["howto.section2Html"]} />
+            <div>
+              <p className="mb-2 text-[10px] uppercase tracking-widest text-ink-muted/70">Rendered</p>
+              <div
+                className="rich rounded-xl border border-edge/60 bg-surface-raised/40 p-4 text-sm"
+                dangerouslySetInnerHTML={{ __html: CONTENT_DEFAULTS["howto.section1Html"] }}
+              />
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );

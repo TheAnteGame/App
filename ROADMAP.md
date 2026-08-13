@@ -20,7 +20,8 @@
 - **DB state: migrations 0001–0004 all applied to prod (Aug 12).** Atomic settlement + Postgres-level rule enforcement are LIVE.
 - ~~OPEN RULING: Bankroll Overtime~~ **RESOLVED (Robert, Aug 12): keep the docs/02 §8 playoff tiebreaker as written** (decision #16). OT code stays dormant until January.
 - **Blockers / Robert to-dos:**
-  1. ~~Paste migration 0005~~ DONE (Aug 12). ~~Simulated week~~ DONE (Aug 13). **Week 1 pick note: the sim wiped the one pre-existing real Week 1 pick — whoever anted (rzt/mar) should re-ante.**
+  0. **Paste migration 0006** (`PASTE-INTO-SUPABASE-0006.sql`) — required before Content studio edits/ticker items persist.
+  1. ~~Paste migration 0005~~ DONE (Aug 12). ~~Simulated week~~ DONE (Aug 13). ~~Week 1 re-ante~~ (rzt seat re-anted during walkthrough).
   2. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
   3. Domain purchase + Resend still pending (no rush until Phase 3).
   4. Optional cleanup: test accounts (ante.tester+clerk_test, rztoler gmail) in pending queue / Clerk users; delete stale `rztoler/the-ante` repo; delete empty old `ante` Vercel project.
@@ -130,7 +131,9 @@
 
 **Fourth leg (Aug 13): live walkthrough — Phase 2 exit criteria PASSED.** Full funnel driven by Claude via Chrome as test player "Vinnie Shark" while Robert commissioned: signup/OTP/approval/Accept/ante/chat/mute all verified on prod. One real bug found+fixed+deployed mid-walkthrough (commissioner self-seat). Gap queued for Phase 3: no remove-ACTIVE-player admin control.
 
-**Stopping point / next actions:** **Phase 3** — Resend emails (needs domain), mobile pass, empty/edge states, legal copy, Playwright happy-path, reconcile run; plus the remove-active-player control. Robert to-dos: Supabase → Third-Party Auth → Clerk if not yet done (chat is on 20s polling until then), domain purchase, NEXT_PUBLIC_APP_URL, stale-repo cleanup. Week 1 antes: rzt seat is in; commish + mar can ante whenever.
+**Fifth leg (Aug 13): Content studio shipped (Robert's pre-Phase-3 request).** Commissioner-editable site copy (landing + login labels, welcome/pending, all three How-to-Play sections via WYSIWYG with brand-color swatches) + custom ticker notices with colors, all behind `/admin/content`, sanitized server-side (tested), audit-logged, defaults-backed. Needs migration 0006 pasted by Robert.
+
+**Stopping point / next actions:** Robert pastes 0006 + verifies the Content studio on prod. Then **Phase 3** — Resend emails (needs domain), mobile pass, empty/edge states, legal copy, Playwright happy-path, reconcile run; plus the remove-active-player control. Robert to-dos: Supabase → Third-Party Auth → Clerk if not yet done (chat is on 20s polling until then), domain purchase, NEXT_PUBLIC_APP_URL, stale-repo cleanup.
 
 **Credentials note:** session env has no TheAnteGame PAT and no CRON_SECRET — PAT must be provided in-chat per session for pushes and run-job dispatch (or Robert clicks Run workflow in the Actions UI; CRON_SECRET lives in Vercel env + Actions secrets).
 

@@ -5,6 +5,11 @@ const TONE: Record<Notice["kind"], string> = {
   gold: "text-gold",
   win: "text-win",
   loss: "text-loss",
+  // commissioner colors (purple lightened for dark-surface contrast)
+  purple: "text-[#9d6fd8]",
+  orange: "text-loss",
+  teal: "text-win",
+  muted: "text-ink-muted",
 };
 
 /**
