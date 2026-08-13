@@ -195,6 +195,49 @@ export async function correctResult(
   };
 }
 
+/**
+ * Give the commissioner their own seat (league membership + starting-balance
+ * ledger). Exists because the original admin account was seeded pre-approval
+ * flow and never got a seat — without one, chat and antes are correctly
+ * refused. Idempotent; audit-logged.
+ */
+export async function seatSelf(): Promise<ActionResult> {
+  const actor = await requireAdmin();
+  if (!actor) return { ok: false, message: "Not authorized." };
+  const db = supabaseAdmin();
+  const { data: existing } = await db
+    .from("league_members")
+    .select("user_id")
+    .eq("league_id", BETA_LEAGUE_ID)
+    .eq("user_id", actor.id)
+    .maybeSingle();
+  if (existing) return { ok: true, message: "You already have a seat." };
+
+  await db.from("league_members").upsert(
+    { league_id: BETA_LEAGUE_ID, user_id: actor.id, bankroll: 1000 },
+    { onConflict: "league_id,user_id", ignoreDuplicates: true },
+  );
+  await db.from("ledger").upsert(
+    {
+      league_id: BETA_LEAGUE_ID,
+      user_id: actor.id,
+      entry_type: "starting_balance",
+      amount: 1000,
+      bankroll_before: 0,
+      bankroll_after: 1000,
+      idempotency_key: `start:${BETA_LEAGUE_ID}:${actor.id}`,
+      reason: "Season starting balance (commissioner self-seat)",
+    },
+    { onConflict: "idempotency_key", ignoreDuplicates: true },
+  );
+  await audit(actor.id, "seat_self", "league_members", actor.id, null,
+    { league_id: BETA_LEAGUE_ID, user_id: actor.id, bankroll: 1000 },
+    "Commissioner took their own seat");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  return { ok: true, message: "You've got a seat at the table — 1,000 on the felt." };
+}
+
 /** Run the lock job now (locks any due week, deals AUTO-ANTES, reveals). */
 export async function runLockNow(): Promise<ActionResult> {
   const actor = await requireAdmin();

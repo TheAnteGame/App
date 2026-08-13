@@ -6,6 +6,7 @@ import {
   correctResult,
   runLockNow,
   runSettleNow,
+  seatSelf,
   type ActionResult,
 } from "./actions";
 
@@ -53,6 +54,27 @@ export function JobButtons() {
         refresh so a hand-corrected result isn&apos;t overwritten.
       </p>
       {pending && <p className="mt-2 text-xs text-gold">Running…</p>}
+      <ResultLine r={result} />
+    </div>
+  );
+}
+
+export function SeatSelfButton() {
+  const [result, setResult] = useState<ActionResult | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <div className="mt-3 border-t border-edge/60 pt-3">
+      <button
+        onClick={() => start(async () => setResult(await seatSelf()))}
+        disabled={pending}
+        className="rounded-lg border border-gold/50 px-3.5 py-2 text-sm text-gold hover:bg-gold/10 disabled:opacity-40"
+      >
+        Take your own seat at the table
+      </button>
+      <p className="mt-1 text-[11px] text-ink-muted">
+        Your admin account has no league seat yet — without one you can&apos;t ante or talk.
+        This deals you in with the standard 1,000 stack.
+      </p>
       <ResultLine r={result} />
     </div>
   );

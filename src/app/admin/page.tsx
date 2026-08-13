@@ -5,7 +5,13 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { BETA_LEAGUE_ID, SEASON } from "@/lib/constants";
 import { VOCAB } from "@/lib/brand";
 import { approve, decline, toggleMute, deleteChatMessage } from "./actions";
-import { JobButtons, LockOverrideForm, ResultCorrectionForm, type CorrectableGame } from "./AdminOps";
+import {
+  JobButtons,
+  LockOverrideForm,
+  ResultCorrectionForm,
+  SeatSelfButton,
+  type CorrectableGame,
+} from "./AdminOps";
 
 export const dynamic = "force-dynamic";
 
@@ -134,6 +140,7 @@ export default async function Admin() {
           )}
         </div>
         <JobButtons />
+        {!bankrollById.has(user.id) && <SeatSelfButton />}
       </section>
 
       {/* ---- Pending seats ---- */}
