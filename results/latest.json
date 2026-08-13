@@ -1,5 +1,5 @@
 {
-  "run_id": 31655989047,
+  "run_id": 31660677093,
   "job": "reconcile",
   "params": "",
   "http_status": "200",
@@ -16,6 +16,13 @@
       },
       {
         "email": "mar…",
+        "status": "active",
+        "cached": 1000,
+        "fromLedger": 1000,
+        "ok": true
+      },
+      {
+        "email": "vin…",
         "status": "active",
         "cached": 1000,
         "fromLedger": 1000,
@@ -132,6 +139,10 @@
         "revealed_at": null
       }
     ],
-    "pickCounts": {}
+    "pickCounts": {
+      "1": {
+        "submitted": 2
+      }
+    }
   }
 }
