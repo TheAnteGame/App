@@ -1,18 +1,163 @@
 {
-  "run_id": 31655177345,
-  "job": "settle-games",
-  "params": "sync=0",
+  "run_id": 31655194255,
+  "job": "reconcile",
+  "params": "",
   "http_status": "200",
   "response": {
-    "sync": {
-      "gamesUpserted": 0,
-      "errors": [
-        "sync skipped (?sync=0)"
-      ]
-    },
-    "settled": 5,
-    "eliminated": 1,
-    "weeksSettled": 1,
-    "errors": []
+    "reconciled": true,
+    "mismatches": [],
+    "bankrolls": [
+      {
+        "email": "rzt…",
+        "status": "active",
+        "cached": 1100,
+        "fromLedger": 1100,
+        "ok": true
+      },
+      {
+        "email": "mar…",
+        "status": "active",
+        "cached": 900,
+        "fromLedger": 900,
+        "ok": true
+      },
+      {
+        "email": "sim…",
+        "status": "active",
+        "cached": 1300,
+        "fromLedger": 1300,
+        "ok": true
+      },
+      {
+        "email": "sim…",
+        "status": "eliminated",
+        "cached": 0,
+        "fromLedger": 0,
+        "ok": true
+      },
+      {
+        "email": "sim…",
+        "status": "active",
+        "cached": 900,
+        "fromLedger": 900,
+        "ok": true
+      }
+    ],
+    "weeks": [
+      {
+        "week": 1,
+        "state": "settled",
+        "lock_at": "2026-08-13T00:33:52.437405+00:00",
+        "revealed_at": "2026-08-13T00:36:03.978+00:00"
+      },
+      {
+        "week": 2,
+        "state": "upcoming",
+        "lock_at": "2026-09-17T19:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 3,
+        "state": "upcoming",
+        "lock_at": "2026-09-24T19:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 4,
+        "state": "upcoming",
+        "lock_at": "2026-10-01T19:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 5,
+        "state": "upcoming",
+        "lock_at": "2026-10-08T19:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 6,
+        "state": "upcoming",
+        "lock_at": "2026-10-15T19:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 7,
+        "state": "upcoming",
+        "lock_at": "2026-10-22T19:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 8,
+        "state": "upcoming",
+        "lock_at": "2026-10-29T19:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 9,
+        "state": "upcoming",
+        "lock_at": "2026-11-05T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 10,
+        "state": "upcoming",
+        "lock_at": "2026-11-12T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 11,
+        "state": "upcoming",
+        "lock_at": "2026-11-19T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 12,
+        "state": "upcoming",
+        "lock_at": "2026-11-26T00:55:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 13,
+        "state": "upcoming",
+        "lock_at": "2026-12-03T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 14,
+        "state": "upcoming",
+        "lock_at": "2026-12-10T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 15,
+        "state": "upcoming",
+        "lock_at": "2026-12-17T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 16,
+        "state": "upcoming",
+        "lock_at": "2026-12-24T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 17,
+        "state": "upcoming",
+        "lock_at": "2026-12-31T20:00:00+00:00",
+        "revealed_at": null
+      },
+      {
+        "week": 18,
+        "state": "upcoming",
+        "lock_at": "2027-01-07T20:00:00+00:00",
+        "revealed_at": null
+      }
+    ],
+    "pickCounts": {
+      "1": {
+        "settled:win": 2,
+        "settled:loss": 3
+      }
+    }
   }
 }
