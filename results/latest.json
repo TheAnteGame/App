@@ -1,18 +1,15 @@
 {
-  "run_id": 31655215702,
-  "job": "settle-games",
-  "params": "sync=0",
+  "run_id": 31655978991,
+  "job": "sync-schedule",
+  "params": "week=1",
   "http_status": "200",
   "response": {
-    "sync": {
-      "gamesUpserted": 0,
-      "errors": [
-        "sync skipped (?sync=0)"
-      ]
-    },
-    "settled": 0,
-    "eliminated": 0,
-    "weeksSettled": 0,
+    "season": 2026,
+    "weeks": [
+      1
+    ],
+    "gamesUpserted": 16,
+    "weeksTouched": 1,
     "errors": []
   }
 }
