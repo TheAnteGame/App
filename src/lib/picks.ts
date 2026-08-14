@@ -39,7 +39,7 @@ export async function submitPick(
     .eq("week", week)
     .maybeSingle();
   if (!weekRow) return { ok: false, error: "That week isn't set up yet." };
-  if (!["upcoming", "open"].includes(weekRow.state))
+  if (weekRow.state !== "upcoming")
     return { ok: false, error: "Antes are locked for this week." };
   if (new Date(weekRow.lock_at).getTime() <= Date.now())
     return { ok: false, error: "The lock has passed — antes are in." };
@@ -89,7 +89,13 @@ export async function submitPick(
     },
     { onConflict: "league_id,user_id,season,week" },
   );
-  if (error) return { ok: false, error: "Couldn't save the pick — try again." };
+  if (error) {
+    // The picks_guard_mutation trigger (migration 0005) closes the race where
+    // an early reveal fires between our week-state check and this upsert.
+    if (error.message?.includes("closed to ante changes"))
+      return { ok: false, error: "The reveal already fired — antes are in." };
+    return { ok: false, error: "Couldn't save the pick — try again." };
+  }
 
   // Early reveal (docs/02 §4): the moment every ACTIVE player has submitted.
   await maybeEarlyReveal(weekRow.id, week);
@@ -115,11 +121,14 @@ export async function maybeEarlyReveal(weekId: string, week: number) {
   for (const id of activeIds) if (!submittedIds.has(id)) return;
 
   // Everyone's in — flip it. Guard on state so repeated calls are no-ops.
+  // Reveal-first ordering + the picks_guard_mutation trigger close the edit
+  // race: once this commits, no team/wager mutation can land, and the lock
+  // update below sweeps any submit that raced in under the wire.
   await db
     .from("weeks")
     .update({ state: "revealed", revealed_at: new Date().toISOString() })
     .eq("id", weekId)
-    .in("state", ["upcoming", "open"]);
+    .eq("state", "upcoming");
   await db
     .from("picks")
     .update({ state: "locked", locked_at: new Date().toISOString() })

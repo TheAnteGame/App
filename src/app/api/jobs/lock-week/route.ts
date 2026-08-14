@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lockWeekJob } from "@/lib/jobs";
+import { isCronAuthorized } from "@/lib/cron-auth";
 
 export const maxDuration = 300;
 
-/** Vercel Cron every 5 min (no-op unless a week's lock_at has passed). */
+/** Pinged every 5 min (no-op unless a week's lock_at has passed). */
 export async function GET(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  const auth = req.headers.get("authorization");
-  const q = req.nextUrl.searchParams.get("secret");
-  if (!secret || (auth !== `Bearer ${secret}` && q !== secret)) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const result = await lockWeekJob();

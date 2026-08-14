@@ -8,21 +8,25 @@
 
 ## Current status
 
-- **Phase:** 1.5 complete (Phases 0 + 1 + hardening all DONE, Aug 12). Next: Phase 2 — Dashboard & social.
-- **Session count:** 1 (marathon)
+- **Phase:** 2 COMPLETE incl. live exit-criteria walkthrough (Session 2, Aug 13 — 11 days ahead of the plan's Aug 24–30 window). Next: Phase 3 — emails, mobile polish, legal copy, Playwright happy-path.
+- **Live seats:** rzt… ("Bobby T."), mar… ("Mike T."), commish (self-seated Aug 13), + test seat "Vinnie Shark" (vinnie.shark+clerk_test — wipe at Phase 4).
+- **Session count:** 2
 - **Repo (SOURCE OF TRUTH): `TheAnteGame/App@main`** → Vercel auto-deploys → https://the-ante-inky.vercel.app
 - **Vercel:** account `roberttoler-8396`, project `the-ante`, deployment protection off.
 - **Database:** migrations 0001–0004 applied; 272 games / 18 weeks ingested; Robert live as commissioner; Clerk email-only auth working end to end.
 - **REPO POLICY (Robert's directive, Aug 12): everything lives on the `TheAnteGame` GitHub. `rztoler` (his separate personal GitHub) is off-limits — no code, no repos, nothing.**
+- **SESSION POLICY (post-incident, Aug 14): ONE session owns the repo at a time.** An Aug 14 parallel session reverted `main` to pre-Phase-1.5 code and re-added dead enum values to prod (see CHANGELOG 2026-08-14; fully restored same day, new logo preserved). Any session MUST fetch main + read these docs before pushing.
 - **PIPELINE (final, working since Aug 12 evening):** `TheAnteGame/App@main` → Vercel project `the-ante` (account roberttoler-8396) → **https://the-ante-inky.vercel.app**. The Vercel account's GitHub login connection is now `TheAnteGame` (Robert authorized it). The stored `TheAnteGame` PAT pushes via `scripts/push-via-api.mjs` — sessions are fully autonomous for shipping. Landing glow-up + all of Phase 1 verified LIVE.
 - **Cleanup (Robert, whenever):** delete the stale `rztoler/the-ante` repo on GitHub; delete the empty old `ante` project on Vercel. Neither affects anything.
 - **DB state: migrations 0001–0004 all applied to prod (Aug 12).** Atomic settlement + Postgres-level rule enforcement are LIVE.
-- **OPEN RULING (Robert): Bankroll Overtime** — keep docs/02 §8 playoff tiebreaker (A), simplify to co-champions (B), or a different tiebreaker (C). OT code paths are dormant until January either way.
+- ~~OPEN RULING: Bankroll Overtime~~ **RESOLVED (Robert, Aug 12): keep the docs/02 §8 playoff tiebreaker as written** (decision #16). OT code stays dormant until January.
 - **Blockers / Robert to-dos:**
-  1. ~~Commissioner SQL~~ DONE. ~~Cron cadence~~ DONE (GitHub Actions pinger live).
+  0. **Paste migration 0006** (`PASTE-INTO-SUPABASE-0006.sql`) — required before Content studio edits/ticker items persist.
+  1. ~~Paste migration 0005~~ DONE (Aug 12). ~~Simulated week~~ DONE (Aug 13). ~~Week 1 re-ante~~ (rzt seat re-anted during walkthrough).
   2. `NEXT_PUBLIC_APP_URL` should be `https://the-ante-inky.vercel.app` (cosmetic until emails ship).
   3. Domain purchase + Resend still pending (no rush until Phase 3).
-  4. Optional cleanup: test accounts (ante.tester+clerk_test, rztoler gmail) in pending queue / Clerk users.
+  4. Optional cleanup: test accounts (ante.tester+clerk_test, rztoler gmail) in pending queue / Clerk users; delete stale `rztoler/the-ante` repo; delete empty old `ante` Vercel project.
+  5. Before Table Talk ships (Phase 2): Supabase dashboard → Authentication → Third-Party Auth → add Clerk (decision #17).
 
 ---
 
@@ -55,7 +59,7 @@
 - [x] Early reveal the moment all actives are in (checked on every submit)
 - [x] Settlement (`/api/jobs/settle-games`): finals only, idempotent ledger writes, push/void, elimination → ghost, standings snapshots
 - [x] Engine unit tests: 26 passing (eligibility, wagers, seeded auto-pick determinism, settlement, elimination)
-- [ ] **Exit criterion left: full simulated week against the live DB** (needs deploy; then run lock-week + settle-games with test data)
+- [x] **Exit criterion met: full simulated week against the live DB (Aug 13).** 3 test players + 2 real seats: lock-week dealt 3 AUTO-ANTES and revealed; fake finals settled 5 picks (win +300 → 1300; all-in loss → 0 → BUSTED + eliminated); week closed `settled` with standings snapshot; both lock and settle re-ran as perfect no-ops (live idempotency proof); reconcile clean at every step; cleanup restored prod exactly (harness: `scripts/sim/`)
 - [ ] Dashboard v1 shipped with Phase 1: header w/ rank+stack, weekly Ante card with countdown, The Table (basic). Full Phase 2 dashboard still to come.
 
 ### Phase 1.5 — Hardening (from the Aug 12 end-of-phase code review)
@@ -66,18 +70,19 @@
 - [x] HIGH: ESPN winner derived from score when flags are missing (no false ties)
 - [x] HIGH: voided picks count toward team usage + no-consecutive (docs/02 §6 precedence confirmed by Robert); helpers moved to `engine/context.ts`; 32 tests total
 - [x] LOW: approve guards pending-only; settle fetches games by game_id (week-move → admin flag); snapshot W-L bounded; constants deduped
-- [ ] Remaining review findings for early Phase 2 (medium/low): pick-submit race guard vs early reveal; drop `?secret=` query param + timing-safe compare; Realtime client auth strategy (Clerk↔Supabase JWT or server-only reads) — REQUIRED before Table Talk; job-layer double-run drift tests via injectable data layer; dead week/pick states (`open`/`locked`/`draft`) — implement or shrink enums
+- [x] Remaining review findings — ALL CLOSED in Session 2 (Aug 12): pick-submit race guard (DB trigger, migration 0005); `?secret=` dropped + timing-safe compare (manual runs via `run-job` Actions workflow); Realtime auth strategy decided + RLS shipped (decision #17); job-layer double-run drift tests (injectable data layer, 10 new tests); dead states shrunk out of the enums (decision #18)
 
-### Phase 2 — Dashboard & social (Aug 24–30)
+### Phase 2 — Dashboard & social (planned Aug 24–30; BUILT Aug 13, Session 2 — ahead of schedule)
 
-- [ ] Weekly Ante card: countdown, pick flow, Ante Up, potential outcomes, post-reveal board flip
-- [ ] The Table: leaderboard + sortable stat views, BUSTED ghosts memorialized
-- [ ] Team inventory: usage pips, disabled states, team schedule drill-in
-- [ ] Notices ticker: deterministic scenario callouts
-- [ ] Table Talk: Supabase Realtime chat + admin mute
-- [ ] NFL schedule view, week history, fun stats (weekly superlatives, then season records)
-- [ ] Admin panel: approvals, submission status (names only pre-reveal), lock override, results correction w/ audit trail, auto-pick review, chat moderation, CRM list
-- **Exit criteria:** two browsers feel like a live league; admin runs a week without touching the DB.
+- [x] Weekly Ante card: countdown, pick flow, Ante Up, potential outcomes, post-reveal board flip (staggered 3D flip, "Antes are in." banner, live game status, result badges)
+- [x] The Table: sortable stat views (Stack/W-L/Big win/Risk), rank movement arrows, anted/waiting pre-reveal, BUSTED ghosts memorialized on "the rail"
+- [x] Team inventory: usage pips, disabled states (bye/used-max/no-back-to-back), team schedule drill-in with the player's antes flagged
+- [x] Notices ticker: deterministic scenario callouts (engine + 5 tests, incl. privacy assertion)
+- [x] Table Talk: Realtime chat via Clerk JWT (poll fallback until the Supabase third-party-auth dashboard step is done) + admin mute/delete
+- [x] NFL schedule view, week history, fun stats (weekly superlatives + season records; engines tested)
+- [x] Admin panel: approvals, submission status (names only pre-reveal), lock override, results correction w/ audit trail (post-settlement corrections deliberately blocked+logged in beta), auto-pick review, chat moderation, CRM list, one-click job runs
+- [x] **Exit criteria PASSED (Aug 13 live walkthrough):** two-browser league test (Claude drove test player "Vinnie Shark" through signup → approval → Accept gate → ante → chat while Robert ran his own seats + /admin), pre-reveal privacy verified, mute verified both sides, commissioner self-seat fix shipped mid-walkthrough. Job-run-from-admin verified as safe no-ops (the full lock→settle cycle was already proven live in the simulated week).
+- Deferred inside Phase 2: Bankroll OT matchup management UI (December, per post-launch plan).
 
 ### Phase 3 — Emails, polish, hardening (Aug 31–Sep 5)
 
@@ -104,6 +109,34 @@
 ## Session Log
 
 > Newest first. Every session appends: date, what got done, exact stopping point, next actions, blockers.
+
+### Session 2 — Aug 12, 2026
+
+**Done:**
+- Cold-start orientation per protocol; cloned repo, verified 34 tests green and the local doc mirror matched the repo exactly.
+- **All five remaining Phase 1.5 review findings closed:** (1) pick-submit race guard as a Postgres BEFORE trigger (migration 0005) with friendly error surfaced in `submitPick`; (2) `?secret=` removed from all job routes, Bearer-only with timing-safe compare, new `run-job` workflow_dispatch for manual runs; (3) Realtime auth decided — Clerk third-party JWT + RLS membership function, chat table in the Realtime publication (decision #17; Robert has one dashboard step before Table Talk); (4) jobs refactored to a pure core (`engine/jobs-core.ts`) over an injectable data layer with 10 double-run/crash-replay drift tests — 44 tests total; (5) dead enum states shrunk (decision #18).
+- Settle job defensive fix: stray `submitted` picks now keep a week open.
+- New `/api/jobs/reconcile` read-only integrity route (ledger vs cached bankroll, week/pick states) — sim-week verification + Phase 3 reconcile groundwork.
+- **Bankroll Overtime ruling closed:** keep the playoff tiebreaker (Robert; decision #16).
+- Robert's local folder: applied PASTE-*.sql files moved to `_to_delete/`.
+- Robert's question answered: no code on his machine by design (GitHub-centric flow from Session 1); repo is public, clone anytime.
+
+**Second half of session (Aug 12 evening → Aug 13): migration applied + simulated week PASSED.**
+- Robert pasted migration 0005; PAT provided in-chat; all work pushed to `TheAnteGame/App@main` and auto-deployed.
+- New results channel for sandboxed sessions: the `run-job` workflow publishes each job response (emails redacted) to `results/latest.json` on the **`run-results` branch** — sandbox reads it via the GitHub contents API (Actions log downloads and the vercel.app host are both outside the sandbox egress allowlist; WebFetch is proxy-blocked on the log blobs too). This is THE way future sessions observe prod.
+- Sim mishap, fully recovered: Robert initially pasted all three sim files back-to-back (no jobs between), which wiped the one pre-existing real Week 1 pick and left fake finals + a backdated lock live; pinger was disabled in time (GitHub's cron throttling meant it never fired), sync-schedule restored Week 1, reconcile confirmed clean. Lesson encoded here: sim steps are paste → STOP → job → paste.
+- **Simulated week, run properly, PASSED end to end:** lock (3 auto-antes, reveal, re-run no-op) → fake finals → settle `sync=0` (5 settled: +300 win → 1300; all-in bust → 0, eliminated; snapshot; week settled; re-run zero drift) → cleanup → ESPN restore → final reconcile clean. Phase 1 exit criteria are now ALL met.
+- Pinger re-enabled after the sim.
+
+**Third leg of the session (Aug 13): Phase 2 BUILT.** Full dashboard (reveal board flip, sortable Table, team inventory, notices ticker, Table Talk, schedule/history/fun stats, sticky section nav) + full commissioner console (one-click job runs, lock override, result correction w/ audit, AUTO-ANTE review, chat moderation, CRM, audit viewer). Two new tested engines (notices, stats — 53 tests total). `/preview` mock-data route + Playwright screenshot QA (desktop+mobile, pre/post-reveal, reviewed in-session). Build green, lint 0 errors.
+
+**Fourth leg (Aug 13): live walkthrough — Phase 2 exit criteria PASSED.** Full funnel driven by Claude via Chrome as test player "Vinnie Shark" while Robert commissioned: signup/OTP/approval/Accept/ante/chat/mute all verified on prod. One real bug found+fixed+deployed mid-walkthrough (commissioner self-seat). Gap queued for Phase 3: no remove-ACTIVE-player admin control.
+
+**Fifth leg (Aug 13): Content studio shipped (Robert's pre-Phase-3 request).** Commissioner-editable site copy (landing + login labels, welcome/pending, all three How-to-Play sections via WYSIWYG with brand-color swatches) + custom ticker notices with colors, all behind `/admin/content`, sanitized server-side (tested), audit-logged, defaults-backed. Needs migration 0006 pasted by Robert.
+
+**Stopping point / next actions:** Robert pastes 0006 + verifies the Content studio on prod. Then **Phase 3** — Resend emails (needs domain), mobile pass, empty/edge states, legal copy, Playwright happy-path, reconcile run; plus the remove-active-player control. Robert to-dos: Supabase → Third-Party Auth → Clerk if not yet done (chat is on 20s polling until then), domain purchase, NEXT_PUBLIC_APP_URL, stale-repo cleanup.
+
+**Credentials note:** session env has no TheAnteGame PAT and no CRON_SECRET — PAT must be provided in-chat per session for pushes and run-job dispatch (or Robert clicks Run workflow in the Actions UI; CRON_SECRET lives in Vercel env + Actions secrets).
 
 ### Session 1 — Aug 12, 2026
 

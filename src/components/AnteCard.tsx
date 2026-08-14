@@ -68,9 +68,13 @@ export default function AnteCard({
     timeZoneName: "short",
   });
 
-  useEffect(() => {
+  // Close the form when a submit lands (state-adjust-during-render pattern —
+  // React's sanctioned alternative to a setState-in-effect cascade).
+  const [prevOk, setPrevOk] = useState(state.ok);
+  if (state.ok !== prevOk) {
+    setPrevOk(state.ok);
     if (state.ok) setEditing(false);
-  }, [state.ok]);
+  }
 
   const chosen = teams.find((t) => t.teamId === teamId);
   const showForm = editing && ms > 0;

@@ -1,8 +1,14 @@
--- The Ante — enum repair (Aug 14)
--- Production's week_state enum was missing 'open' (verified via debug-state:
--- `invalid input value for enum week_state: "open"`), which broke the
--- dashboard's current-week lookup. This re-asserts EVERY enum value from
--- 0001; each line is a no-op when the value already exists.
+-- The Ante — enum "repair" (Aug 14) — HISTORICAL RECORD of applied DDL.
+-- Context (incident, see CHANGELOG 2026-08-14): a parallel session reverted
+-- the deployed CODE to a pre-0005 state; that stale code queried the dead
+-- 'open' state that migration 0005_phase2_prep had deliberately removed. The
+-- session misread the resulting error as a broken DATABASE and re-added every
+-- 0001 enum value (each line no-ops if the value exists). Robert applied it,
+-- so prod's week_state/pick_state now carry the dead values again ('open',
+-- 'locked', 'draft'). This is HARMLESS — no code path ever writes them — and
+-- re-shrinking is optional cleanup for a quiet week, not a requirement.
+-- Kept (renamed 0007, its true position after 0006) because migrations must
+-- record what actually ran against prod.
 
 alter type user_role add value if not exists 'player';
 alter type user_role add value if not exists 'admin';
