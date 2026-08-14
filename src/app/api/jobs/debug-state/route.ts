@@ -23,14 +23,29 @@ export async function GET(req: NextRequest) {
       currentWeek(),
       db.from("users").select("email, role, status"),
     ]);
+  // Replicate currentWeek() exactly, but surface its error instead of eating it.
+  const cwRaw = await db
+    .from("weeks")
+    .select("*")
+    .eq("league_id", BETA_LEAGUE_ID)
+    .eq("season", SEASON)
+    .in("state", ["upcoming", "open", "locked", "revealed"])
+    .order("week", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
   return NextResponse.json({
     league: BETA_LEAGUE_ID,
     season: SEASON,
     weeksError: weeksErr?.message ?? null,
     weeksCount: weeks?.length ?? 0,
-    weeks: (weeks ?? []).slice(0, 4),
+    weeks: (weeks ?? []).slice(0, 2),
     gamesCount: games,
     currentWeekResult: cw ?? null,
+    cwRawData: cwRaw.data ?? null,
+    cwRawError: cwRaw.error
+      ? { message: cwRaw.error.message, details: cwRaw.error.details, code: cwRaw.error.code }
+      : null,
     users,
   });
 }
