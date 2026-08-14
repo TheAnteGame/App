@@ -1,5 +1,5 @@
 {
-  "run_id": 31660677093,
+  "run_id": 31768850429,
   "job": "reconcile",
   "params": "",
   "http_status": "200",
@@ -23,6 +23,13 @@
       },
       {
         "email": "vin…",
+        "status": "active",
+        "cached": 1000,
+        "fromLedger": 1000,
+        "ok": true
+      },
+      {
+        "email": "rob…",
         "status": "active",
         "cached": 1000,
         "fromLedger": 1000,
