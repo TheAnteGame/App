@@ -6,6 +6,10 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
+## 2026-08-14 — Logo refresh
+
+- [branding] Robert delivered updated colored logo files; refreshed `branding/` + `public/brand/` (dark/light), deployed and verified live (checksums match source).
+
 ## 2026-08-12 — Session 1, part 6 (full rules conformance audit + fixes)
 
 - [audit] Rule-by-rule conformance audit of docs/02 §1–9 vs code: crown-jewel rules (privacy, settlement discipline, elimination, AUTO-ANTE, locks) all CONFORM; discrepancies below fixed same-day. Decisions #10–#15 added to docs/05.
