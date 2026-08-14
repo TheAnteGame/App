@@ -6,35 +6,13 @@ import { VOCAB } from "@/lib/brand";
 
 type Stage = "email" | "code";
 
-export type EmailGateLabels = {
-  emailPlaceholder: string;
-  emailFine: string;
-  codeSentPrefix: string;
-  codePlaceholder: string;
-  useDifferentEmail: string;
-};
-
-const DEFAULT_LABELS: EmailGateLabels = {
-  emailPlaceholder: "your@email.com",
-  emailFine:
-    "We'll email you a 6-digit code — no passwords here. By continuing you agree to receive league emails. Free to enter; not a gambling service.",
-  codeSentPrefix: "Code sent to",
-  codePlaceholder: "6-digit code",
-  useDifferentEmail: "Use a different email",
-};
-
 /**
  * Combined sign-in / sign-up with a single email field (wireframes 1–2):
  * existing users get a code and go straight in; new emails are signed up and
  * continue to profile completion. Passwordless, always. Built on Clerk v7's
- * future API (signIn.emailCode / signUp.verifications). Labels are
- * commissioner-editable (passed from the server page via site_content).
+ * future API (signIn.emailCode / signUp.verifications).
  */
-export default function EmailGate({
-  labels = DEFAULT_LABELS,
-}: {
-  labels?: EmailGateLabels;
-}) {
+export default function EmailGate() {
   const { signIn } = useSignIn();
   const { signUp } = useSignUp();
 
@@ -188,7 +166,7 @@ export default function EmailGate({
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={labels.emailPlaceholder}
+                placeholder="your@email.com"
                 className="w-full bg-transparent px-4 py-3.5 text-base text-ink outline-none placeholder:text-ink-muted/50"
               />
               <button
@@ -200,12 +178,16 @@ export default function EmailGate({
                 {busy ? "…" : "→"}
               </button>
             </div>
-            <p className="text-xs leading-relaxed text-ink-muted/70">{labels.emailFine}</p>
+            <p className="text-xs leading-relaxed text-ink-muted/70">
+              We&apos;ll email you a 6-digit code — no passwords here. By
+              continuing you agree to receive league emails. Free to enter; not
+              a gambling service.
+            </p>
           </form>
         ) : (
           <form onSubmit={verify} className="space-y-3">
             <p className="text-sm text-ink-muted">
-              {labels.codeSentPrefix} <span className="text-ink">{email}</span>
+              Code sent to <span className="text-ink">{email}</span>
             </p>
             <div className="flex overflow-hidden rounded-xl border border-gold/40 bg-surface-card/80 backdrop-blur-sm focus-within:border-gold">
               <input
@@ -216,7 +198,7 @@ export default function EmailGate({
                 autoFocus
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder={labels.codePlaceholder}
+                placeholder="6-digit code"
                 className="num w-full bg-transparent px-4 py-3.5 text-center text-xl tracking-[0.4em] text-ink outline-none placeholder:text-base placeholder:tracking-normal placeholder:text-ink-muted/50"
               />
               <button
@@ -236,7 +218,7 @@ export default function EmailGate({
               }}
               className="text-xs text-ink-muted underline-offset-2 hover:underline"
             >
-              {labels.useDifferentEmail}
+              Use a different email
             </button>
           </form>
         )}

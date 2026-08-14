@@ -121,7 +121,7 @@ export async function currentWeek() {
     .select("*")
     .eq("league_id", BETA_LEAGUE_ID)
     .eq("season", SEASON)
-    .in("state", ["upcoming", "revealed"])
+    .in("state", ["upcoming", "open", "locked", "revealed"])
     .order("week", { ascending: true })
     .limit(1)
     .maybeSingle();

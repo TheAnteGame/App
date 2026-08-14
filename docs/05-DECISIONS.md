@@ -20,10 +20,6 @@ Every contradiction, gap, or edge case found while merging the spec doc and wire
 | 13 | OT wager ceiling: schema capped all wagers at 1,000, but docs/02 §8 says 1..full bankroll in overtime | Docs win: DB CHECK relaxed (migration 0004); engine caps OT antes at full bankroll; regular season unchanged (100–1,000) | Rules audit, Aug 12 |
 | 14 | Phone optional in the profile form vs docs/02 §1 "signup collects … mobile phone" | Docs win: phone is now required at profile completion (still store-only, email-only notifications) | Rules audit, Aug 12 |
 | 15 | docs/02 §4 said picks hidden "before lock" while also defining early reveal | Rulebook wording fixed: the privacy boundary is **reveal** (matches code and CLAUDE.md) | Rules audit, Aug 12 |
-| 16 | Bankroll Overtime open ruling (keep playoff tiebreaker vs co-champions) | **Keep the docs/02 §8 playoff tiebreaker as written.** OT code paths stay dormant until January | Robert, Aug 12 |
-| 17 | Realtime chat client auth undecided (review finding; REQUIRED before Table Talk) | **Clerk third-party auth into Supabase**: client subscribes with the Clerk JWT; RLS gates chat reads to active/eliminated league members via security-definer `is_chat_member()` (migration 0005); writes stay server-side (mute + membership checks). Robert setup step before Table Talk ships: Supabase dashboard → Authentication → Third-Party Auth → add Clerk | Claude default, Aug 12 (flag if wrong) |
-| 18 | `week_state` `open`/`locked` and `pick_state` `draft` never set by any code path | **Shrink enums to reality** (migration 0005): weeks `upcoming→revealed→settled`, picks `submitted→locked→settled`. Re-adding a state later is one cheap migration; dead states in the schema invite code that trusts them | Review follow-up, Aug 12 |
-| 19 | `?secret=` on job routes put the cron secret in URLs (logs, browser history) | **Bearer header only + timing-safe compare**; manual job runs move to the `run-job` GitHub Actions workflow, so the secret lives only in Vercel env + Actions secrets | Review follow-up, Aug 12 |
 
 ## Defaults set without a question (flag if any feel wrong)
 

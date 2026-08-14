@@ -108,7 +108,7 @@ export async function syncSchedule(
       else result.weeksTouched++;
     } else if (
       existing.lock_source !== "admin_override" &&
-      existing.state === "upcoming"
+      ["upcoming", "open"].includes(existing.state as string)
     ) {
       const { error } = await db
         .from("weeks")
