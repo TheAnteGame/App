@@ -6,7 +6,9 @@ Format: `- [area] What changed — why (if not obvious)`
 
 ---
 
-## 2026-08-14 — Logo refresh
+## 2026-08-14 — Logo refresh + enum repair
+
+- [fix] Dashboard showed "Season setup in progress": prod `week_state` enum was missing `open`, killing the current-week query (error surfaced via the new CRON_SECRET-gated `/api/jobs/debug-state` diagnostic). Migration 0005 re-asserts every enum value idempotently; Robert applied it; verified fixed — Week 1 card live.
 
 - [branding] Robert delivered updated colored logo files; refreshed `branding/` + `public/brand/` (dark/light), deployed and verified live (checksums match source).
 
