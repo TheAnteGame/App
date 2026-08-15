@@ -208,7 +208,7 @@ body {
   backdrop-filter: blur(4px);
 }
 
-/* --- Notices ticker: seamless marquee, pauses on hover --- */
+/* --- Notices ticker: seamless marquee --- */
 .ticker {
   overflow: hidden;
   position: relative;
@@ -223,8 +223,6 @@ body {
   animation: ticker-scroll var(--ticker-duration, 40s) linear infinite;
   will-change: transform;
 }
-
-.ticker:hover .ticker-track { animation-play-state: paused; }
 
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
